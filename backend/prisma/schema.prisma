@@ -1,0 +1,355 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ============================================================
+// AUTH & IDENTITY
+// ============================================================
+
+model User {
+  id           String   @id @default(uuid())
+  fullName     String   @map("full_name")
+  email        String   @unique
+  phone        String?
+  passwordHash String?  @map("password_hash") // null for Google OAuth users
+  googleId     String?  @unique @map("google_id")
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  bookings      Booking[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+// ============================================================
+// FLIGHT INVENTORY
+// ============================================================
+
+model Flight {
+  id           String   @id @default(uuid())
+  flightNumber String   @unique @map("flight_number") // e.g. "AF1234"
+  airlineCode  String   @map("airline_code")          // IATA 2-letter e.g. "AF"
+  originIata   String   @map("origin_iata")           // e.g. "CDG"
+  destIata     String   @map("destination_iata")      // e.g. "ALG"
+  departureAt  DateTime @map("departure_at")
+  arrivalAt    DateTime @map("arrival_at")
+  aircraftType String   @map("aircraft_type")         // e.g. "A320", "B737"
+  totalRows    Int      @map("total_rows")
+  seatsPerRow  Int      @map("seats_per_row")
+  status       FlightStatus @default(SCHEDULED)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  bookings Booking[]
+  seats    Seat[]
+
+  @@map("flights")
+}
+
+enum FlightStatus {
+  SCHEDULED
+  BOARDING
+  DEPARTED
+  ARRIVED
+  CANCELLED
+  DELAYED
+}
+
+// ============================================================
+// BOOKING
+// Passengers don't "own" flights — they have bookings.
+// A booking belongs to a user (the one who retrieved it)
+// and maps to exactly one flight.
+// ============================================================
+
+model Booking {
+  id               String        @id @default(uuid())
+  userId           String?       @map("user_id")   // null until user logs in
+  flightId         String        @map("flight_id")
+  bookingReference String        @unique @map("booking_reference") // PNR e.g. "ABC123"
+  lastName         String        @map("last_name")  // used for lookup
+  status           BookingStatus @default(PENDING)
+  bookedAt         DateTime      @default(now()) @map("booked_at")
+  expiresAt        DateTime?     @map("expires_at") // check-in window closes at departure
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  flight        Flight         @relation(fields: [flightId], references: [id])
+  passengers    Passenger[]
+  checkin       CheckIn[]
+  notifications Notification[]
+
+  @@index([bookingReference, lastName])
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING         // Retrieved but check-in not started
+  CHECKIN_OPEN    // Within 24h window
+  CHECKED_IN      // Check-in complete
+  CANCELLED
+}
+
+// ============================================================
+// PASSENGER
+// One booking can have multiple passengers (group travel).
+// Each passenger has their own passport data, check-in, and
+// boarding pass.
+// ============================================================
+
+model Passenger {
+  id               String   @id @default(uuid())
+  bookingId        String   @map("booking_id")
+  firstName        String   @map("first_name")
+  lastName         String   @map("last_name")
+  passengerType    PassengerType @default(ADULT) @map("passenger_type")
+  dateOfBirth      DateTime @map("date_of_birth") @db.Date
+  nationality      String
+  passportNumber   String?  @map("passport_number")
+  passportExpiry   DateTime? @map("passport_expiry") @db.Date
+  passportMrz      String?  @map("passport_mrz")     // raw MRZ string from OCR
+  passportScanUrl  String?  @map("passport_scan_url") // encrypted stored image
+  isPrimary        Boolean  @default(false) @map("is_primary") // lead passenger
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  checkin      CheckIn?
+  boardingPass BoardingPass?
+
+  @@unique([bookingId, passportNumber])
+  @@map("passengers")
+}
+
+enum PassengerType {
+  ADULT
+  CHILD
+  INFANT
+}
+
+// ============================================================
+// CHECK-IN PROCESS
+// Tracks the multi-step check-in flow per passenger.
+// status + currentStep allow resuming a paused flow.
+// ============================================================
+
+model CheckIn {
+  id          String       @id @default(uuid())
+  bookingId   String       @map("booking_id")
+  passengerId String       @unique @map("passenger_id")
+  status      CheckInStatus @default(INITIATED)
+  currentStep CheckInStep  @default(PASSPORT_SCAN) @map("current_step")
+  startedAt   DateTime     @default(now()) @map("started_at")
+  completedAt DateTime?    @map("completed_at")
+  ipAddress   String?      @map("ip_address")
+
+  booking        Booking        @relation(fields: [bookingId], references: [id])
+  passenger      Passenger      @relation(fields: [passengerId], references: [id])
+  baggage        Baggage[]
+  specialRequests SpecialRequest[]
+  boardingPass   BoardingPass?
+  seatReserved   Seat?          @relation("SeatReservation")
+
+  @@map("check_ins")
+}
+
+enum CheckInStatus {
+  INITIATED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+  EXPIRED
+}
+
+enum CheckInStep {
+  PASSPORT_SCAN
+  DETAILS_REVIEW
+  SEAT_SELECTION
+  BAGGAGE_DECLARATION
+  SPECIAL_REQUESTS
+  CONFIRMATION
+}
+
+// ============================================================
+// SEAT MAP
+// One row per physical seat on the aircraft.
+// Populated when the flight is created.
+// ============================================================
+
+model Seat {
+  id                String    @id @default(uuid())
+  flightId          String    @map("flight_id")
+  seatCode          String    @map("seat_code")   // e.g. "12A"
+  rowNumber         Int       @map("row_number")
+  columnLetter      String    @map("column_letter") // A-F
+  class             SeatClass @default(ECONOMY)
+  type              SeatType  @default(STANDARD)
+  reservedByCheckinId String? @unique @map("reserved_by_checkin_id")
+  reservedAt        DateTime? @map("reserved_at")
+
+  flight  Flight  @relation(fields: [flightId], references: [id])
+  checkin CheckIn? @relation("SeatReservation", fields: [reservedByCheckinId], references: [id])
+  boardingPass BoardingPass?
+
+  @@unique([flightId, seatCode])
+  @@map("seats")
+}
+
+enum SeatClass {
+  ECONOMY
+  BUSINESS
+  FIRST
+}
+
+enum SeatType {
+  STANDARD
+  WINDOW
+  AISLE
+  MIDDLE
+  EXTRA_LEGROOM
+  EMERGENCY_EXIT
+}
+
+// ============================================================
+// BAGGAGE
+// Each check-in can declare multiple bags.
+// ============================================================
+
+model Baggage {
+  id        String      @id @default(uuid())
+  checkinId String      @map("checkin_id")
+  bagType   BagType     @map("bag_type")
+  quantity  Int         @default(1)
+  weightKg  Float?      @map("weight_kg")
+  status    BagStatus   @default(DECLARED)
+  tagNumber String?     @unique @map("tag_number") // assigned at airport drop
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  checkin CheckIn @relation(fields: [checkinId], references: [id], onDelete: Cascade)
+
+  @@map("baggage")
+}
+
+enum BagType {
+  CARRY_ON
+  CHECKED
+  OVERSIZED
+  FRAGILE
+  SPORTS_EQUIPMENT
+}
+
+enum BagStatus {
+  DECLARED
+  DROPPED
+  IN_TRANSIT
+  DELIVERED
+}
+
+// ============================================================
+// SPECIAL REQUESTS
+// Dietary, accessibility, infant/pet declarations.
+// ============================================================
+
+model SpecialRequest {
+  id        String          @id @default(uuid())
+  checkinId String          @map("checkin_id")
+  category  RequestCategory
+  detail    String          // e.g. "VGML", "WCHR", "INFT"
+  notes     String?
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  checkin CheckIn @relation(fields: [checkinId], references: [id], onDelete: Cascade)
+
+  @@map("special_requests")
+}
+
+enum RequestCategory {
+  DIETARY       // e.g. vegan, halal, kosher
+  ACCESSIBILITY // e.g. wheelchair, visual impairment
+  INFANT        // infant-in-arms
+  PET           // pet in cabin
+  MEDICAL
+  OTHER
+}
+
+// ============================================================
+// BOARDING PASS
+// One per (check-in, passenger). Contains the QR code,
+// PDF reference, and a JSON payload for offline access.
+// ============================================================
+
+model BoardingPass {
+  id          String   @id @default(uuid())
+  checkinId   String   @unique @map("checkin_id")
+  passengerId String   @unique @map("passenger_id")
+  seatId      String   @unique @map("seat_id")
+  qrCodeData  String   @unique @map("qr_code_data") // signed JWT or UUID token
+  qrCodeUrl   String?  @map("qr_code_url")          // rendered QR image URL
+  pdfUrl      String?  @map("pdf_url")               // S3 / CDN link
+  isSynced    Boolean  @default(false) @map("is_synced")
+  syncedAt    DateTime? @map("synced_at")
+  issuedAt    DateTime @default(now()) @map("issued_at")
+  expiresAt   DateTime @map("expires_at")            // usually at gate close
+  offlinePayload Json  @map("offline_payload")        // full flight + pass data for SQLite cache
+
+  checkin     CheckIn   @relation(fields: [checkinId], references: [id])
+  passenger   Passenger @relation(fields: [passengerId], references: [id])
+  seat        Seat      @relation(fields: [seatId], references: [id])
+
+  @@map("boarding_passes")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// Sent on check-in completion, gate changes, etc.
+// ============================================================
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String             @map("user_id")
+  bookingId String?            @map("booking_id")
+  type      NotificationType
+  channel   NotificationChannel
+  status    NotificationStatus @default(PENDING)
+  payload   Json               // title, body, deep_link, etc.
+  sentAt    DateTime?          @map("sent_at")
+  readAt    DateTime?          @map("read_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  CHECKIN_CONFIRMED
+  BOARDING_PASS_READY
+  GATE_CHANGE
+  FLIGHT_DELAY
+  FLIGHT_CANCELLED
+  REMINDER         // "Check-in opens in 30 min"
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
