@@ -31,6 +31,15 @@ export const BookingStatus = {
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]
 
 
+export const PassengerType = {
+  ADULT: 'ADULT',
+  CHILD: 'CHILD',
+  INFANT: 'INFANT'
+} as const
+
+export type PassengerType = (typeof PassengerType)[keyof typeof PassengerType]
+
+
 export const CheckInStatus = {
   INITIATED: 'INITIATED',
   IN_PROGRESS: 'IN_PROGRESS',

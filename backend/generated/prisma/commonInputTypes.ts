@@ -196,9 +196,26 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumPassengerTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PassengerType | Prisma.EnumPassengerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPassengerTypeFilter<$PrismaModel> | $Enums.PassengerType
+}
+
 export type BoolFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type EnumPassengerTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PassengerType | Prisma.EnumPassengerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPassengerTypeWithAggregatesFilter<$PrismaModel> | $Enums.PassengerType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPassengerTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPassengerTypeFilter<$PrismaModel>
 }
 
 export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -652,9 +669,26 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type NestedEnumPassengerTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PassengerType | Prisma.EnumPassengerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPassengerTypeFilter<$PrismaModel> | $Enums.PassengerType
+}
+
 export type NestedBoolFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type NestedEnumPassengerTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PassengerType | Prisma.EnumPassengerTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PassengerType[] | Prisma.ListEnumPassengerTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPassengerTypeWithAggregatesFilter<$PrismaModel> | $Enums.PassengerType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPassengerTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPassengerTypeFilter<$PrismaModel>
 }
 
 export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {

@@ -8,9 +8,11 @@ import rateLimiter from "express-rate-limit";
 import errHandler from "./middleware/errHandler";
 import authRoutes from "./routes/auth.routes";
 import usersRoutes from "./routes/users.routes";
+import bookingRoutes from "./routes/booking.routes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { NODE_ENV } from "./config/env";
+import { requireAuth } from "./middleware/auth";
 
 const app = express();
 
@@ -29,6 +31,7 @@ app.get("/health", async (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/bookings", requireAuth, bookingRoutes);
 
 if (NODE_ENV === "development") {
   app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

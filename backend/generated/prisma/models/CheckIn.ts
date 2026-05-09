@@ -233,11 +233,11 @@ export type CheckInOrderByWithRelationInput = {
 
 export type CheckInWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  bookingId?: string
   passengerId?: string
   AND?: Prisma.CheckInWhereInput | Prisma.CheckInWhereInput[]
   OR?: Prisma.CheckInWhereInput[]
   NOT?: Prisma.CheckInWhereInput | Prisma.CheckInWhereInput[]
+  bookingId?: Prisma.StringFilter<"CheckIn"> | string
   status?: Prisma.EnumCheckInStatusFilter<"CheckIn"> | $Enums.CheckInStatus
   currentStep?: Prisma.EnumCheckInStepFilter<"CheckIn"> | $Enums.CheckInStep
   startedAt?: Prisma.DateTimeFilter<"CheckIn"> | Date | string
@@ -249,7 +249,7 @@ export type CheckInWhereUniqueInput = Prisma.AtLeast<{
   specialRequests?: Prisma.SpecialRequestListRelationFilter
   boardingPass?: Prisma.XOR<Prisma.BoardingPassNullableScalarRelationFilter, Prisma.BoardingPassWhereInput> | null
   seatReserved?: Prisma.XOR<Prisma.SeatNullableScalarRelationFilter, Prisma.SeatWhereInput> | null
-}, "id" | "bookingId" | "passengerId">
+}, "id" | "passengerId">
 
 export type CheckInOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -370,6 +370,16 @@ export type CheckInUncheckedUpdateManyInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
+export type CheckInListRelationFilter = {
+  every?: Prisma.CheckInWhereInput
+  some?: Prisma.CheckInWhereInput
+  none?: Prisma.CheckInWhereInput
+}
+
+export type CheckInOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type CheckInNullableScalarRelationFilter = {
   is?: Prisma.CheckInWhereInput | null
   isNot?: Prisma.CheckInWhereInput | null
@@ -413,36 +423,46 @@ export type CheckInScalarRelationFilter = {
   isNot?: Prisma.CheckInWhereInput
 }
 
-export type CheckInCreateNestedOneWithoutBookingInput = {
-  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
-  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput
-  connect?: Prisma.CheckInWhereUniqueInput
+export type CheckInCreateNestedManyWithoutBookingInput = {
+  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput> | Prisma.CheckInCreateWithoutBookingInput[] | Prisma.CheckInUncheckedCreateWithoutBookingInput[]
+  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput | Prisma.CheckInCreateOrConnectWithoutBookingInput[]
+  createMany?: Prisma.CheckInCreateManyBookingInputEnvelope
+  connect?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
 }
 
-export type CheckInUncheckedCreateNestedOneWithoutBookingInput = {
-  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
-  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput
-  connect?: Prisma.CheckInWhereUniqueInput
+export type CheckInUncheckedCreateNestedManyWithoutBookingInput = {
+  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput> | Prisma.CheckInCreateWithoutBookingInput[] | Prisma.CheckInUncheckedCreateWithoutBookingInput[]
+  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput | Prisma.CheckInCreateOrConnectWithoutBookingInput[]
+  createMany?: Prisma.CheckInCreateManyBookingInputEnvelope
+  connect?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
 }
 
-export type CheckInUpdateOneWithoutBookingNestedInput = {
-  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
-  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput
-  upsert?: Prisma.CheckInUpsertWithoutBookingInput
-  disconnect?: Prisma.CheckInWhereInput | boolean
-  delete?: Prisma.CheckInWhereInput | boolean
-  connect?: Prisma.CheckInWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CheckInUpdateToOneWithWhereWithoutBookingInput, Prisma.CheckInUpdateWithoutBookingInput>, Prisma.CheckInUncheckedUpdateWithoutBookingInput>
+export type CheckInUpdateManyWithoutBookingNestedInput = {
+  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput> | Prisma.CheckInCreateWithoutBookingInput[] | Prisma.CheckInUncheckedCreateWithoutBookingInput[]
+  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput | Prisma.CheckInCreateOrConnectWithoutBookingInput[]
+  upsert?: Prisma.CheckInUpsertWithWhereUniqueWithoutBookingInput | Prisma.CheckInUpsertWithWhereUniqueWithoutBookingInput[]
+  createMany?: Prisma.CheckInCreateManyBookingInputEnvelope
+  set?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  disconnect?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  delete?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  connect?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  update?: Prisma.CheckInUpdateWithWhereUniqueWithoutBookingInput | Prisma.CheckInUpdateWithWhereUniqueWithoutBookingInput[]
+  updateMany?: Prisma.CheckInUpdateManyWithWhereWithoutBookingInput | Prisma.CheckInUpdateManyWithWhereWithoutBookingInput[]
+  deleteMany?: Prisma.CheckInScalarWhereInput | Prisma.CheckInScalarWhereInput[]
 }
 
-export type CheckInUncheckedUpdateOneWithoutBookingNestedInput = {
-  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
-  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput
-  upsert?: Prisma.CheckInUpsertWithoutBookingInput
-  disconnect?: Prisma.CheckInWhereInput | boolean
-  delete?: Prisma.CheckInWhereInput | boolean
-  connect?: Prisma.CheckInWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CheckInUpdateToOneWithWhereWithoutBookingInput, Prisma.CheckInUpdateWithoutBookingInput>, Prisma.CheckInUncheckedUpdateWithoutBookingInput>
+export type CheckInUncheckedUpdateManyWithoutBookingNestedInput = {
+  create?: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput> | Prisma.CheckInCreateWithoutBookingInput[] | Prisma.CheckInUncheckedCreateWithoutBookingInput[]
+  connectOrCreate?: Prisma.CheckInCreateOrConnectWithoutBookingInput | Prisma.CheckInCreateOrConnectWithoutBookingInput[]
+  upsert?: Prisma.CheckInUpsertWithWhereUniqueWithoutBookingInput | Prisma.CheckInUpsertWithWhereUniqueWithoutBookingInput[]
+  createMany?: Prisma.CheckInCreateManyBookingInputEnvelope
+  set?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  disconnect?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  delete?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  connect?: Prisma.CheckInWhereUniqueInput | Prisma.CheckInWhereUniqueInput[]
+  update?: Prisma.CheckInUpdateWithWhereUniqueWithoutBookingInput | Prisma.CheckInUpdateWithWhereUniqueWithoutBookingInput[]
+  updateMany?: Prisma.CheckInUpdateManyWithWhereWithoutBookingInput | Prisma.CheckInUpdateManyWithWhereWithoutBookingInput[]
+  deleteMany?: Prisma.CheckInScalarWhereInput | Prisma.CheckInScalarWhereInput[]
 }
 
 export type CheckInCreateNestedOneWithoutPassengerInput = {
@@ -576,43 +596,39 @@ export type CheckInCreateOrConnectWithoutBookingInput = {
   create: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
 }
 
-export type CheckInUpsertWithoutBookingInput = {
-  update: Prisma.XOR<Prisma.CheckInUpdateWithoutBookingInput, Prisma.CheckInUncheckedUpdateWithoutBookingInput>
-  create: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
-  where?: Prisma.CheckInWhereInput
+export type CheckInCreateManyBookingInputEnvelope = {
+  data: Prisma.CheckInCreateManyBookingInput | Prisma.CheckInCreateManyBookingInput[]
+  skipDuplicates?: boolean
 }
 
-export type CheckInUpdateToOneWithWhereWithoutBookingInput = {
-  where?: Prisma.CheckInWhereInput
+export type CheckInUpsertWithWhereUniqueWithoutBookingInput = {
+  where: Prisma.CheckInWhereUniqueInput
+  update: Prisma.XOR<Prisma.CheckInUpdateWithoutBookingInput, Prisma.CheckInUncheckedUpdateWithoutBookingInput>
+  create: Prisma.XOR<Prisma.CheckInCreateWithoutBookingInput, Prisma.CheckInUncheckedCreateWithoutBookingInput>
+}
+
+export type CheckInUpdateWithWhereUniqueWithoutBookingInput = {
+  where: Prisma.CheckInWhereUniqueInput
   data: Prisma.XOR<Prisma.CheckInUpdateWithoutBookingInput, Prisma.CheckInUncheckedUpdateWithoutBookingInput>
 }
 
-export type CheckInUpdateWithoutBookingInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
-  currentStep?: Prisma.EnumCheckInStepFieldUpdateOperationsInput | $Enums.CheckInStep
-  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  passenger?: Prisma.PassengerUpdateOneRequiredWithoutCheckinNestedInput
-  baggage?: Prisma.BaggageUpdateManyWithoutCheckinNestedInput
-  specialRequests?: Prisma.SpecialRequestUpdateManyWithoutCheckinNestedInput
-  boardingPass?: Prisma.BoardingPassUpdateOneWithoutCheckinNestedInput
-  seatReserved?: Prisma.SeatUpdateOneWithoutCheckinNestedInput
+export type CheckInUpdateManyWithWhereWithoutBookingInput = {
+  where: Prisma.CheckInScalarWhereInput
+  data: Prisma.XOR<Prisma.CheckInUpdateManyMutationInput, Prisma.CheckInUncheckedUpdateManyWithoutBookingInput>
 }
 
-export type CheckInUncheckedUpdateWithoutBookingInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  passengerId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
-  currentStep?: Prisma.EnumCheckInStepFieldUpdateOperationsInput | $Enums.CheckInStep
-  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baggage?: Prisma.BaggageUncheckedUpdateManyWithoutCheckinNestedInput
-  specialRequests?: Prisma.SpecialRequestUncheckedUpdateManyWithoutCheckinNestedInput
-  boardingPass?: Prisma.BoardingPassUncheckedUpdateOneWithoutCheckinNestedInput
-  seatReserved?: Prisma.SeatUncheckedUpdateOneWithoutCheckinNestedInput
+export type CheckInScalarWhereInput = {
+  AND?: Prisma.CheckInScalarWhereInput | Prisma.CheckInScalarWhereInput[]
+  OR?: Prisma.CheckInScalarWhereInput[]
+  NOT?: Prisma.CheckInScalarWhereInput | Prisma.CheckInScalarWhereInput[]
+  id?: Prisma.StringFilter<"CheckIn"> | string
+  bookingId?: Prisma.StringFilter<"CheckIn"> | string
+  passengerId?: Prisma.StringFilter<"CheckIn"> | string
+  status?: Prisma.EnumCheckInStatusFilter<"CheckIn"> | $Enums.CheckInStatus
+  currentStep?: Prisma.EnumCheckInStepFilter<"CheckIn"> | $Enums.CheckInStep
+  startedAt?: Prisma.DateTimeFilter<"CheckIn"> | Date | string
+  completedAt?: Prisma.DateTimeNullableFilter<"CheckIn"> | Date | string | null
+  ipAddress?: Prisma.StringNullableFilter<"CheckIn"> | string | null
 }
 
 export type CheckInCreateWithoutPassengerInput = {
@@ -973,6 +989,54 @@ export type CheckInUncheckedUpdateWithoutBoardingPassInput = {
   baggage?: Prisma.BaggageUncheckedUpdateManyWithoutCheckinNestedInput
   specialRequests?: Prisma.SpecialRequestUncheckedUpdateManyWithoutCheckinNestedInput
   seatReserved?: Prisma.SeatUncheckedUpdateOneWithoutCheckinNestedInput
+}
+
+export type CheckInCreateManyBookingInput = {
+  id?: string
+  passengerId: string
+  status?: $Enums.CheckInStatus
+  currentStep?: $Enums.CheckInStep
+  startedAt?: Date | string
+  completedAt?: Date | string | null
+  ipAddress?: string | null
+}
+
+export type CheckInUpdateWithoutBookingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
+  currentStep?: Prisma.EnumCheckInStepFieldUpdateOperationsInput | $Enums.CheckInStep
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passenger?: Prisma.PassengerUpdateOneRequiredWithoutCheckinNestedInput
+  baggage?: Prisma.BaggageUpdateManyWithoutCheckinNestedInput
+  specialRequests?: Prisma.SpecialRequestUpdateManyWithoutCheckinNestedInput
+  boardingPass?: Prisma.BoardingPassUpdateOneWithoutCheckinNestedInput
+  seatReserved?: Prisma.SeatUpdateOneWithoutCheckinNestedInput
+}
+
+export type CheckInUncheckedUpdateWithoutBookingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
+  currentStep?: Prisma.EnumCheckInStepFieldUpdateOperationsInput | $Enums.CheckInStep
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baggage?: Prisma.BaggageUncheckedUpdateManyWithoutCheckinNestedInput
+  specialRequests?: Prisma.SpecialRequestUncheckedUpdateManyWithoutCheckinNestedInput
+  boardingPass?: Prisma.BoardingPassUncheckedUpdateOneWithoutCheckinNestedInput
+  seatReserved?: Prisma.SeatUncheckedUpdateOneWithoutCheckinNestedInput
+}
+
+export type CheckInUncheckedUpdateManyWithoutBookingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCheckInStatusFieldUpdateOperationsInput | $Enums.CheckInStatus
+  currentStep?: Prisma.EnumCheckInStepFieldUpdateOperationsInput | $Enums.CheckInStep
+  startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 

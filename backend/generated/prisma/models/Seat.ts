@@ -42,7 +42,6 @@ export type SeatMinAggregateOutputType = {
   columnLetter: string | null
   class: $Enums.SeatClass | null
   type: $Enums.SeatType | null
-  isAvailable: boolean | null
   reservedByCheckinId: string | null
   reservedAt: Date | null
 }
@@ -55,7 +54,6 @@ export type SeatMaxAggregateOutputType = {
   columnLetter: string | null
   class: $Enums.SeatClass | null
   type: $Enums.SeatType | null
-  isAvailable: boolean | null
   reservedByCheckinId: string | null
   reservedAt: Date | null
 }
@@ -68,7 +66,6 @@ export type SeatCountAggregateOutputType = {
   columnLetter: number
   class: number
   type: number
-  isAvailable: number
   reservedByCheckinId: number
   reservedAt: number
   _all: number
@@ -91,7 +88,6 @@ export type SeatMinAggregateInputType = {
   columnLetter?: true
   class?: true
   type?: true
-  isAvailable?: true
   reservedByCheckinId?: true
   reservedAt?: true
 }
@@ -104,7 +100,6 @@ export type SeatMaxAggregateInputType = {
   columnLetter?: true
   class?: true
   type?: true
-  isAvailable?: true
   reservedByCheckinId?: true
   reservedAt?: true
 }
@@ -117,7 +112,6 @@ export type SeatCountAggregateInputType = {
   columnLetter?: true
   class?: true
   type?: true
-  isAvailable?: true
   reservedByCheckinId?: true
   reservedAt?: true
   _all?: true
@@ -217,7 +211,6 @@ export type SeatGroupByOutputType = {
   columnLetter: string
   class: $Enums.SeatClass
   type: $Enums.SeatType
-  isAvailable: boolean
   reservedByCheckinId: string | null
   reservedAt: Date | null
   _count: SeatCountAggregateOutputType | null
@@ -253,7 +246,6 @@ export type SeatWhereInput = {
   columnLetter?: Prisma.StringFilter<"Seat"> | string
   class?: Prisma.EnumSeatClassFilter<"Seat"> | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFilter<"Seat"> | $Enums.SeatType
-  isAvailable?: Prisma.BoolFilter<"Seat"> | boolean
   reservedByCheckinId?: Prisma.StringNullableFilter<"Seat"> | string | null
   reservedAt?: Prisma.DateTimeNullableFilter<"Seat"> | Date | string | null
   flight?: Prisma.XOR<Prisma.FlightScalarRelationFilter, Prisma.FlightWhereInput>
@@ -269,7 +261,6 @@ export type SeatOrderByWithRelationInput = {
   columnLetter?: Prisma.SortOrder
   class?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isAvailable?: Prisma.SortOrder
   reservedByCheckinId?: Prisma.SortOrderInput | Prisma.SortOrder
   reservedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   flight?: Prisma.FlightOrderByWithRelationInput
@@ -290,7 +281,6 @@ export type SeatWhereUniqueInput = Prisma.AtLeast<{
   columnLetter?: Prisma.StringFilter<"Seat"> | string
   class?: Prisma.EnumSeatClassFilter<"Seat"> | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFilter<"Seat"> | $Enums.SeatType
-  isAvailable?: Prisma.BoolFilter<"Seat"> | boolean
   reservedAt?: Prisma.DateTimeNullableFilter<"Seat"> | Date | string | null
   flight?: Prisma.XOR<Prisma.FlightScalarRelationFilter, Prisma.FlightWhereInput>
   checkin?: Prisma.XOR<Prisma.CheckInNullableScalarRelationFilter, Prisma.CheckInWhereInput> | null
@@ -305,7 +295,6 @@ export type SeatOrderByWithAggregationInput = {
   columnLetter?: Prisma.SortOrder
   class?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isAvailable?: Prisma.SortOrder
   reservedByCheckinId?: Prisma.SortOrderInput | Prisma.SortOrder
   reservedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.SeatCountOrderByAggregateInput
@@ -326,7 +315,6 @@ export type SeatScalarWhereWithAggregatesInput = {
   columnLetter?: Prisma.StringWithAggregatesFilter<"Seat"> | string
   class?: Prisma.EnumSeatClassWithAggregatesFilter<"Seat"> | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeWithAggregatesFilter<"Seat"> | $Enums.SeatType
-  isAvailable?: Prisma.BoolWithAggregatesFilter<"Seat"> | boolean
   reservedByCheckinId?: Prisma.StringNullableWithAggregatesFilter<"Seat"> | string | null
   reservedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Seat"> | Date | string | null
 }
@@ -338,7 +326,6 @@ export type SeatCreateInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedAt?: Date | string | null
   flight: Prisma.FlightCreateNestedOneWithoutSeatsInput
   checkin?: Prisma.CheckInCreateNestedOneWithoutSeatReservedInput
@@ -353,7 +340,6 @@ export type SeatUncheckedCreateInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedByCheckinId?: string | null
   reservedAt?: Date | string | null
   boardingPass?: Prisma.BoardingPassUncheckedCreateNestedOneWithoutSeatInput
@@ -366,7 +352,6 @@ export type SeatUpdateInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flight?: Prisma.FlightUpdateOneRequiredWithoutSeatsNestedInput
   checkin?: Prisma.CheckInUpdateOneWithoutSeatReservedNestedInput
@@ -381,7 +366,6 @@ export type SeatUncheckedUpdateInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedByCheckinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boardingPass?: Prisma.BoardingPassUncheckedUpdateOneWithoutSeatNestedInput
@@ -395,7 +379,6 @@ export type SeatCreateManyInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedByCheckinId?: string | null
   reservedAt?: Date | string | null
 }
@@ -407,7 +390,6 @@ export type SeatUpdateManyMutationInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
@@ -419,7 +401,6 @@ export type SeatUncheckedUpdateManyInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedByCheckinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -452,7 +433,6 @@ export type SeatCountOrderByAggregateInput = {
   columnLetter?: Prisma.SortOrder
   class?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isAvailable?: Prisma.SortOrder
   reservedByCheckinId?: Prisma.SortOrder
   reservedAt?: Prisma.SortOrder
 }
@@ -469,7 +449,6 @@ export type SeatMaxOrderByAggregateInput = {
   columnLetter?: Prisma.SortOrder
   class?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isAvailable?: Prisma.SortOrder
   reservedByCheckinId?: Prisma.SortOrder
   reservedAt?: Prisma.SortOrder
 }
@@ -482,7 +461,6 @@ export type SeatMinOrderByAggregateInput = {
   columnLetter?: Prisma.SortOrder
   class?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  isAvailable?: Prisma.SortOrder
   reservedByCheckinId?: Prisma.SortOrder
   reservedAt?: Prisma.SortOrder
 }
@@ -599,7 +577,6 @@ export type SeatCreateWithoutFlightInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedAt?: Date | string | null
   checkin?: Prisma.CheckInCreateNestedOneWithoutSeatReservedInput
   boardingPass?: Prisma.BoardingPassCreateNestedOneWithoutSeatInput
@@ -612,7 +589,6 @@ export type SeatUncheckedCreateWithoutFlightInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedByCheckinId?: string | null
   reservedAt?: Date | string | null
   boardingPass?: Prisma.BoardingPassUncheckedCreateNestedOneWithoutSeatInput
@@ -655,7 +631,6 @@ export type SeatScalarWhereInput = {
   columnLetter?: Prisma.StringFilter<"Seat"> | string
   class?: Prisma.EnumSeatClassFilter<"Seat"> | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFilter<"Seat"> | $Enums.SeatType
-  isAvailable?: Prisma.BoolFilter<"Seat"> | boolean
   reservedByCheckinId?: Prisma.StringNullableFilter<"Seat"> | string | null
   reservedAt?: Prisma.DateTimeNullableFilter<"Seat"> | Date | string | null
 }
@@ -667,7 +642,6 @@ export type SeatCreateWithoutCheckinInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedAt?: Date | string | null
   flight: Prisma.FlightCreateNestedOneWithoutSeatsInput
   boardingPass?: Prisma.BoardingPassCreateNestedOneWithoutSeatInput
@@ -681,7 +655,6 @@ export type SeatUncheckedCreateWithoutCheckinInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedAt?: Date | string | null
   boardingPass?: Prisma.BoardingPassUncheckedCreateNestedOneWithoutSeatInput
 }
@@ -709,7 +682,6 @@ export type SeatUpdateWithoutCheckinInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flight?: Prisma.FlightUpdateOneRequiredWithoutSeatsNestedInput
   boardingPass?: Prisma.BoardingPassUpdateOneWithoutSeatNestedInput
@@ -723,7 +695,6 @@ export type SeatUncheckedUpdateWithoutCheckinInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boardingPass?: Prisma.BoardingPassUncheckedUpdateOneWithoutSeatNestedInput
 }
@@ -735,7 +706,6 @@ export type SeatCreateWithoutBoardingPassInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedAt?: Date | string | null
   flight: Prisma.FlightCreateNestedOneWithoutSeatsInput
   checkin?: Prisma.CheckInCreateNestedOneWithoutSeatReservedInput
@@ -749,7 +719,6 @@ export type SeatUncheckedCreateWithoutBoardingPassInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedByCheckinId?: string | null
   reservedAt?: Date | string | null
 }
@@ -777,7 +746,6 @@ export type SeatUpdateWithoutBoardingPassInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flight?: Prisma.FlightUpdateOneRequiredWithoutSeatsNestedInput
   checkin?: Prisma.CheckInUpdateOneWithoutSeatReservedNestedInput
@@ -791,7 +759,6 @@ export type SeatUncheckedUpdateWithoutBoardingPassInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedByCheckinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -803,7 +770,6 @@ export type SeatCreateManyFlightInput = {
   columnLetter: string
   class?: $Enums.SeatClass
   type?: $Enums.SeatType
-  isAvailable?: boolean
   reservedByCheckinId?: string | null
   reservedAt?: Date | string | null
 }
@@ -815,7 +781,6 @@ export type SeatUpdateWithoutFlightInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   checkin?: Prisma.CheckInUpdateOneWithoutSeatReservedNestedInput
   boardingPass?: Prisma.BoardingPassUpdateOneWithoutSeatNestedInput
@@ -828,7 +793,6 @@ export type SeatUncheckedUpdateWithoutFlightInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedByCheckinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   boardingPass?: Prisma.BoardingPassUncheckedUpdateOneWithoutSeatNestedInput
@@ -841,7 +805,6 @@ export type SeatUncheckedUpdateManyWithoutFlightInput = {
   columnLetter?: Prisma.StringFieldUpdateOperationsInput | string
   class?: Prisma.EnumSeatClassFieldUpdateOperationsInput | $Enums.SeatClass
   type?: Prisma.EnumSeatTypeFieldUpdateOperationsInput | $Enums.SeatType
-  isAvailable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reservedByCheckinId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reservedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -856,7 +819,6 @@ export type SeatSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   columnLetter?: boolean
   class?: boolean
   type?: boolean
-  isAvailable?: boolean
   reservedByCheckinId?: boolean
   reservedAt?: boolean
   flight?: boolean | Prisma.FlightDefaultArgs<ExtArgs>
@@ -872,7 +834,6 @@ export type SeatSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   columnLetter?: boolean
   class?: boolean
   type?: boolean
-  isAvailable?: boolean
   reservedByCheckinId?: boolean
   reservedAt?: boolean
   flight?: boolean | Prisma.FlightDefaultArgs<ExtArgs>
@@ -887,7 +848,6 @@ export type SeatSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   columnLetter?: boolean
   class?: boolean
   type?: boolean
-  isAvailable?: boolean
   reservedByCheckinId?: boolean
   reservedAt?: boolean
   flight?: boolean | Prisma.FlightDefaultArgs<ExtArgs>
@@ -902,12 +862,11 @@ export type SeatSelectScalar = {
   columnLetter?: boolean
   class?: boolean
   type?: boolean
-  isAvailable?: boolean
   reservedByCheckinId?: boolean
   reservedAt?: boolean
 }
 
-export type SeatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "flightId" | "seatCode" | "rowNumber" | "columnLetter" | "class" | "type" | "isAvailable" | "reservedByCheckinId" | "reservedAt", ExtArgs["result"]["seat"]>
+export type SeatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "flightId" | "seatCode" | "rowNumber" | "columnLetter" | "class" | "type" | "reservedByCheckinId" | "reservedAt", ExtArgs["result"]["seat"]>
 export type SeatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   flight?: boolean | Prisma.FlightDefaultArgs<ExtArgs>
   checkin?: boolean | Prisma.Seat$checkinArgs<ExtArgs>
@@ -937,7 +896,6 @@ export type $SeatPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     columnLetter: string
     class: $Enums.SeatClass
     type: $Enums.SeatType
-    isAvailable: boolean
     reservedByCheckinId: string | null
     reservedAt: Date | null
   }, ExtArgs["result"]["seat"]>
@@ -1373,7 +1331,6 @@ export interface SeatFieldRefs {
   readonly columnLetter: Prisma.FieldRef<"Seat", 'String'>
   readonly class: Prisma.FieldRef<"Seat", 'SeatClass'>
   readonly type: Prisma.FieldRef<"Seat", 'SeatType'>
-  readonly isAvailable: Prisma.FieldRef<"Seat", 'Boolean'>
   readonly reservedByCheckinId: Prisma.FieldRef<"Seat", 'String'>
   readonly reservedAt: Prisma.FieldRef<"Seat", 'DateTime'>
 }
