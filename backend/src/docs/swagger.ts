@@ -9,9 +9,13 @@ import {
   refreshTokenSchema,
   authResponseSchema,
 } from "../schemas/auth.schema";
-import { z } from "zod";
 import { PORT } from "../config/env";
-import userSchema from "../schemas/user.schema";
+import userSchema, { userMeResponseSchema } from "../schemas/user.schema";
+import { healthResponseSchema } from "../schemas/common.schema";
+import {
+  bookingLookupResponseSchema,
+  lookupSchema,
+} from "../schemas/booking.schema";
 
 const registry = new OpenAPIRegistry();
 registry.register("RegisterInput", registerSchema);
@@ -21,6 +25,26 @@ registry.register("RefreshTokenInput", refreshTokenSchema);
 
 registry.register("User", userSchema);
 registry.register("AuthResponse", authResponseSchema);
+registry.register("UserMeResponse", userMeResponseSchema);
+registry.register("HealthResponse", healthResponseSchema);
+registry.register("BookingLookupResponse", bookingLookupResponseSchema);
+registry.register("LookupInput", lookupSchema);
+
+registry.registerPath({
+  method: "get",
+  path: "/health",
+  tags: ["Health"],
+  responses: {
+    200: {
+      description: "Service health check",
+      content: {
+        "application/json": {
+          schema: healthResponseSchema,
+        },
+      },
+    },
+  },
+});
 
 registry.registerPath({
   method: "post",
@@ -140,7 +164,34 @@ registry.registerPath({
       description: "Current user",
       content: {
         "application/json": {
-          schema: z.object({ user: userSchema }),
+          schema: userMeResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/bookings/lookup",
+  tags: ["Bookings"],
+  request: {
+    body: {
+      description: "Lookup a booking by reference and last name",
+      required: true,
+      content: {
+        "application/json": {
+          schema: lookupSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Booking lookup result",
+      content: {
+        "application/json": {
+          schema: bookingLookupResponseSchema,
         },
       },
     },

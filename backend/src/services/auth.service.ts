@@ -21,10 +21,22 @@ const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 const toSafeUser = (user: {
   passwordHash?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
   [key: string]: unknown;
 }) => {
   const { passwordHash, ...safeUser } = user;
-  return safeUser;
+  return {
+    ...safeUser,
+    createdAt:
+      safeUser.createdAt instanceof Date
+        ? safeUser.createdAt.toISOString()
+        : safeUser.createdAt,
+    updatedAt:
+      safeUser.updatedAt instanceof Date
+        ? safeUser.updatedAt.toISOString()
+        : safeUser.updatedAt,
+  };
 };
 
 export const generateTokens = (userId: string) => {
