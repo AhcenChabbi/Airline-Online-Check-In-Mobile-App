@@ -46,8 +46,10 @@ export const refreshTokenSchema = z
 
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
 
-export const authResponseSchema = z.object({
-  accessToken: z.string(),
-  refreshToken: z.string(),
-  user: userSchema,
-});
+export const authResponseSchema = z
+  .object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+    user: userSchema,
+  })
+  .openapi("AuthResponse");

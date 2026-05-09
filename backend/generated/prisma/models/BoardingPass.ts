@@ -33,6 +33,7 @@ export type BoardingPassMinAggregateOutputType = {
   qrCodeUrl: string | null
   pdfUrl: string | null
   isSynced: boolean | null
+  syncedAt: Date | null
   issuedAt: Date | null
   expiresAt: Date | null
 }
@@ -46,6 +47,7 @@ export type BoardingPassMaxAggregateOutputType = {
   qrCodeUrl: string | null
   pdfUrl: string | null
   isSynced: boolean | null
+  syncedAt: Date | null
   issuedAt: Date | null
   expiresAt: Date | null
 }
@@ -59,6 +61,7 @@ export type BoardingPassCountAggregateOutputType = {
   qrCodeUrl: number
   pdfUrl: number
   isSynced: number
+  syncedAt: number
   issuedAt: number
   expiresAt: number
   offlinePayload: number
@@ -75,6 +78,7 @@ export type BoardingPassMinAggregateInputType = {
   qrCodeUrl?: true
   pdfUrl?: true
   isSynced?: true
+  syncedAt?: true
   issuedAt?: true
   expiresAt?: true
 }
@@ -88,6 +92,7 @@ export type BoardingPassMaxAggregateInputType = {
   qrCodeUrl?: true
   pdfUrl?: true
   isSynced?: true
+  syncedAt?: true
   issuedAt?: true
   expiresAt?: true
 }
@@ -101,6 +106,7 @@ export type BoardingPassCountAggregateInputType = {
   qrCodeUrl?: true
   pdfUrl?: true
   isSynced?: true
+  syncedAt?: true
   issuedAt?: true
   expiresAt?: true
   offlinePayload?: true
@@ -188,6 +194,7 @@ export type BoardingPassGroupByOutputType = {
   qrCodeUrl: string | null
   pdfUrl: string | null
   isSynced: boolean
+  syncedAt: Date | null
   issuedAt: Date
   expiresAt: Date
   offlinePayload: runtime.JsonValue
@@ -223,6 +230,7 @@ export type BoardingPassWhereInput = {
   qrCodeUrl?: Prisma.StringNullableFilter<"BoardingPass"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"BoardingPass"> | string | null
   isSynced?: Prisma.BoolFilter<"BoardingPass"> | boolean
+  syncedAt?: Prisma.DateTimeNullableFilter<"BoardingPass"> | Date | string | null
   issuedAt?: Prisma.DateTimeFilter<"BoardingPass"> | Date | string
   expiresAt?: Prisma.DateTimeFilter<"BoardingPass"> | Date | string
   offlinePayload?: Prisma.JsonFilter<"BoardingPass">
@@ -240,6 +248,7 @@ export type BoardingPassOrderByWithRelationInput = {
   qrCodeUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isSynced?: Prisma.SortOrder
+  syncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   offlinePayload?: Prisma.SortOrder
@@ -260,6 +269,7 @@ export type BoardingPassWhereUniqueInput = Prisma.AtLeast<{
   qrCodeUrl?: Prisma.StringNullableFilter<"BoardingPass"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"BoardingPass"> | string | null
   isSynced?: Prisma.BoolFilter<"BoardingPass"> | boolean
+  syncedAt?: Prisma.DateTimeNullableFilter<"BoardingPass"> | Date | string | null
   issuedAt?: Prisma.DateTimeFilter<"BoardingPass"> | Date | string
   expiresAt?: Prisma.DateTimeFilter<"BoardingPass"> | Date | string
   offlinePayload?: Prisma.JsonFilter<"BoardingPass">
@@ -277,6 +287,7 @@ export type BoardingPassOrderByWithAggregationInput = {
   qrCodeUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isSynced?: Prisma.SortOrder
+  syncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   offlinePayload?: Prisma.SortOrder
@@ -297,6 +308,7 @@ export type BoardingPassScalarWhereWithAggregatesInput = {
   qrCodeUrl?: Prisma.StringNullableWithAggregatesFilter<"BoardingPass"> | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"BoardingPass"> | string | null
   isSynced?: Prisma.BoolWithAggregatesFilter<"BoardingPass"> | boolean
+  syncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"BoardingPass"> | Date | string | null
   issuedAt?: Prisma.DateTimeWithAggregatesFilter<"BoardingPass"> | Date | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"BoardingPass"> | Date | string
   offlinePayload?: Prisma.JsonWithAggregatesFilter<"BoardingPass">
@@ -308,6 +320,7 @@ export type BoardingPassCreateInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -325,6 +338,7 @@ export type BoardingPassUncheckedCreateInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -336,6 +350,7 @@ export type BoardingPassUpdateInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -353,6 +368,7 @@ export type BoardingPassUncheckedUpdateInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -367,6 +383,7 @@ export type BoardingPassCreateManyInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -378,6 +395,7 @@ export type BoardingPassUpdateManyMutationInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -392,6 +410,7 @@ export type BoardingPassUncheckedUpdateManyInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -411,6 +430,7 @@ export type BoardingPassCountOrderByAggregateInput = {
   qrCodeUrl?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   isSynced?: Prisma.SortOrder
+  syncedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   offlinePayload?: Prisma.SortOrder
@@ -425,6 +445,7 @@ export type BoardingPassMaxOrderByAggregateInput = {
   qrCodeUrl?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   isSynced?: Prisma.SortOrder
+  syncedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -438,6 +459,7 @@ export type BoardingPassMinOrderByAggregateInput = {
   qrCodeUrl?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   isSynced?: Prisma.SortOrder
+  syncedAt?: Prisma.SortOrder
   issuedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
 }
@@ -544,6 +566,7 @@ export type BoardingPassCreateWithoutPassengerInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -559,6 +582,7 @@ export type BoardingPassUncheckedCreateWithoutPassengerInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -586,6 +610,7 @@ export type BoardingPassUpdateWithoutPassengerInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -601,6 +626,7 @@ export type BoardingPassUncheckedUpdateWithoutPassengerInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -612,6 +638,7 @@ export type BoardingPassCreateWithoutCheckinInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -627,6 +654,7 @@ export type BoardingPassUncheckedCreateWithoutCheckinInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -654,6 +682,7 @@ export type BoardingPassUpdateWithoutCheckinInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -669,6 +698,7 @@ export type BoardingPassUncheckedUpdateWithoutCheckinInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -680,6 +710,7 @@ export type BoardingPassCreateWithoutSeatInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -695,6 +726,7 @@ export type BoardingPassUncheckedCreateWithoutSeatInput = {
   qrCodeUrl?: string | null
   pdfUrl?: string | null
   isSynced?: boolean
+  syncedAt?: Date | string | null
   issuedAt?: Date | string
   expiresAt: Date | string
   offlinePayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -722,6 +754,7 @@ export type BoardingPassUpdateWithoutSeatInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -737,6 +770,7 @@ export type BoardingPassUncheckedUpdateWithoutSeatInput = {
   qrCodeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isSynced?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   issuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   offlinePayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -753,6 +787,7 @@ export type BoardingPassSelect<ExtArgs extends runtime.Types.Extensions.Internal
   qrCodeUrl?: boolean
   pdfUrl?: boolean
   isSynced?: boolean
+  syncedAt?: boolean
   issuedAt?: boolean
   expiresAt?: boolean
   offlinePayload?: boolean
@@ -770,6 +805,7 @@ export type BoardingPassSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   qrCodeUrl?: boolean
   pdfUrl?: boolean
   isSynced?: boolean
+  syncedAt?: boolean
   issuedAt?: boolean
   expiresAt?: boolean
   offlinePayload?: boolean
@@ -787,6 +823,7 @@ export type BoardingPassSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   qrCodeUrl?: boolean
   pdfUrl?: boolean
   isSynced?: boolean
+  syncedAt?: boolean
   issuedAt?: boolean
   expiresAt?: boolean
   offlinePayload?: boolean
@@ -804,12 +841,13 @@ export type BoardingPassSelectScalar = {
   qrCodeUrl?: boolean
   pdfUrl?: boolean
   isSynced?: boolean
+  syncedAt?: boolean
   issuedAt?: boolean
   expiresAt?: boolean
   offlinePayload?: boolean
 }
 
-export type BoardingPassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "checkinId" | "passengerId" | "seatId" | "qrCodeData" | "qrCodeUrl" | "pdfUrl" | "isSynced" | "issuedAt" | "expiresAt" | "offlinePayload", ExtArgs["result"]["boardingPass"]>
+export type BoardingPassOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "checkinId" | "passengerId" | "seatId" | "qrCodeData" | "qrCodeUrl" | "pdfUrl" | "isSynced" | "syncedAt" | "issuedAt" | "expiresAt" | "offlinePayload", ExtArgs["result"]["boardingPass"]>
 export type BoardingPassInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   checkin?: boolean | Prisma.CheckInDefaultArgs<ExtArgs>
   passenger?: boolean | Prisma.PassengerDefaultArgs<ExtArgs>
@@ -842,6 +880,7 @@ export type $BoardingPassPayload<ExtArgs extends runtime.Types.Extensions.Intern
     qrCodeUrl: string | null
     pdfUrl: string | null
     isSynced: boolean
+    syncedAt: Date | null
     issuedAt: Date
     expiresAt: Date
     offlinePayload: runtime.JsonValue
@@ -1279,6 +1318,7 @@ export interface BoardingPassFieldRefs {
   readonly qrCodeUrl: Prisma.FieldRef<"BoardingPass", 'String'>
   readonly pdfUrl: Prisma.FieldRef<"BoardingPass", 'String'>
   readonly isSynced: Prisma.FieldRef<"BoardingPass", 'Boolean'>
+  readonly syncedAt: Prisma.FieldRef<"BoardingPass", 'DateTime'>
   readonly issuedAt: Prisma.FieldRef<"BoardingPass", 'DateTime'>
   readonly expiresAt: Prisma.FieldRef<"BoardingPass", 'DateTime'>
   readonly offlinePayload: Prisma.FieldRef<"BoardingPass", 'Json'>

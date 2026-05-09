@@ -29,6 +29,7 @@ export type PassengerMinAggregateOutputType = {
   bookingId: string | null
   firstName: string | null
   lastName: string | null
+  passengerType: $Enums.PassengerType | null
   dateOfBirth: Date | null
   nationality: string | null
   passportNumber: string | null
@@ -44,6 +45,7 @@ export type PassengerMaxAggregateOutputType = {
   bookingId: string | null
   firstName: string | null
   lastName: string | null
+  passengerType: $Enums.PassengerType | null
   dateOfBirth: Date | null
   nationality: string | null
   passportNumber: string | null
@@ -59,6 +61,7 @@ export type PassengerCountAggregateOutputType = {
   bookingId: number
   firstName: number
   lastName: number
+  passengerType: number
   dateOfBirth: number
   nationality: number
   passportNumber: number
@@ -76,6 +79,7 @@ export type PassengerMinAggregateInputType = {
   bookingId?: true
   firstName?: true
   lastName?: true
+  passengerType?: true
   dateOfBirth?: true
   nationality?: true
   passportNumber?: true
@@ -91,6 +95,7 @@ export type PassengerMaxAggregateInputType = {
   bookingId?: true
   firstName?: true
   lastName?: true
+  passengerType?: true
   dateOfBirth?: true
   nationality?: true
   passportNumber?: true
@@ -106,6 +111,7 @@ export type PassengerCountAggregateInputType = {
   bookingId?: true
   firstName?: true
   lastName?: true
+  passengerType?: true
   dateOfBirth?: true
   nationality?: true
   passportNumber?: true
@@ -194,6 +200,7 @@ export type PassengerGroupByOutputType = {
   bookingId: string
   firstName: string
   lastName: string
+  passengerType: $Enums.PassengerType
   dateOfBirth: Date
   nationality: string
   passportNumber: string | null
@@ -230,6 +237,7 @@ export type PassengerWhereInput = {
   bookingId?: Prisma.StringFilter<"Passenger"> | string
   firstName?: Prisma.StringFilter<"Passenger"> | string
   lastName?: Prisma.StringFilter<"Passenger"> | string
+  passengerType?: Prisma.EnumPassengerTypeFilter<"Passenger"> | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFilter<"Passenger"> | Date | string
   nationality?: Prisma.StringFilter<"Passenger"> | string
   passportNumber?: Prisma.StringNullableFilter<"Passenger"> | string | null
@@ -248,6 +256,7 @@ export type PassengerOrderByWithRelationInput = {
   bookingId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  passengerType?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   nationality?: Prisma.SortOrder
   passportNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -270,6 +279,7 @@ export type PassengerWhereUniqueInput = Prisma.AtLeast<{
   bookingId?: Prisma.StringFilter<"Passenger"> | string
   firstName?: Prisma.StringFilter<"Passenger"> | string
   lastName?: Prisma.StringFilter<"Passenger"> | string
+  passengerType?: Prisma.EnumPassengerTypeFilter<"Passenger"> | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFilter<"Passenger"> | Date | string
   nationality?: Prisma.StringFilter<"Passenger"> | string
   passportNumber?: Prisma.StringNullableFilter<"Passenger"> | string | null
@@ -288,6 +298,7 @@ export type PassengerOrderByWithAggregationInput = {
   bookingId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  passengerType?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   nationality?: Prisma.SortOrder
   passportNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -309,6 +320,7 @@ export type PassengerScalarWhereWithAggregatesInput = {
   bookingId?: Prisma.StringWithAggregatesFilter<"Passenger"> | string
   firstName?: Prisma.StringWithAggregatesFilter<"Passenger"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"Passenger"> | string
+  passengerType?: Prisma.EnumPassengerTypeWithAggregatesFilter<"Passenger"> | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeWithAggregatesFilter<"Passenger"> | Date | string
   nationality?: Prisma.StringWithAggregatesFilter<"Passenger"> | string
   passportNumber?: Prisma.StringNullableWithAggregatesFilter<"Passenger"> | string | null
@@ -323,6 +335,7 @@ export type PassengerCreateInput = {
   id?: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -341,6 +354,7 @@ export type PassengerUncheckedCreateInput = {
   bookingId: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -357,6 +371,7 @@ export type PassengerUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -375,6 +390,7 @@ export type PassengerUncheckedUpdateInput = {
   bookingId?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -392,6 +408,7 @@ export type PassengerCreateManyInput = {
   bookingId: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -406,6 +423,7 @@ export type PassengerUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -421,6 +439,7 @@ export type PassengerUncheckedUpdateManyInput = {
   bookingId?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -451,6 +470,7 @@ export type PassengerCountOrderByAggregateInput = {
   bookingId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  passengerType?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   nationality?: Prisma.SortOrder
   passportNumber?: Prisma.SortOrder
@@ -466,6 +486,7 @@ export type PassengerMaxOrderByAggregateInput = {
   bookingId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  passengerType?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   nationality?: Prisma.SortOrder
   passportNumber?: Prisma.SortOrder
@@ -481,6 +502,7 @@ export type PassengerMinOrderByAggregateInput = {
   bookingId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  passengerType?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   nationality?: Prisma.SortOrder
   passportNumber?: Prisma.SortOrder
@@ -538,6 +560,10 @@ export type PassengerUncheckedUpdateManyWithoutBookingNestedInput = {
   deleteMany?: Prisma.PassengerScalarWhereInput | Prisma.PassengerScalarWhereInput[]
 }
 
+export type EnumPassengerTypeFieldUpdateOperationsInput = {
+  set?: $Enums.PassengerType
+}
+
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
@@ -574,6 +600,7 @@ export type PassengerCreateWithoutBookingInput = {
   id?: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -590,6 +617,7 @@ export type PassengerUncheckedCreateWithoutBookingInput = {
   id?: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -636,6 +664,7 @@ export type PassengerScalarWhereInput = {
   bookingId?: Prisma.StringFilter<"Passenger"> | string
   firstName?: Prisma.StringFilter<"Passenger"> | string
   lastName?: Prisma.StringFilter<"Passenger"> | string
+  passengerType?: Prisma.EnumPassengerTypeFilter<"Passenger"> | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFilter<"Passenger"> | Date | string
   nationality?: Prisma.StringFilter<"Passenger"> | string
   passportNumber?: Prisma.StringNullableFilter<"Passenger"> | string | null
@@ -650,6 +679,7 @@ export type PassengerCreateWithoutCheckinInput = {
   id?: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -667,6 +697,7 @@ export type PassengerUncheckedCreateWithoutCheckinInput = {
   bookingId: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -698,6 +729,7 @@ export type PassengerUpdateWithoutCheckinInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -715,6 +747,7 @@ export type PassengerUncheckedUpdateWithoutCheckinInput = {
   bookingId?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -730,6 +763,7 @@ export type PassengerCreateWithoutBoardingPassInput = {
   id?: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -747,6 +781,7 @@ export type PassengerUncheckedCreateWithoutBoardingPassInput = {
   bookingId: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -778,6 +813,7 @@ export type PassengerUpdateWithoutBoardingPassInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -795,6 +831,7 @@ export type PassengerUncheckedUpdateWithoutBoardingPassInput = {
   bookingId?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -810,6 +847,7 @@ export type PassengerCreateManyBookingInput = {
   id?: string
   firstName: string
   lastName: string
+  passengerType?: $Enums.PassengerType
   dateOfBirth: Date | string
   nationality: string
   passportNumber?: string | null
@@ -824,6 +862,7 @@ export type PassengerUpdateWithoutBookingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -840,6 +879,7 @@ export type PassengerUncheckedUpdateWithoutBookingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -856,6 +896,7 @@ export type PassengerUncheckedUpdateManyWithoutBookingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  passengerType?: Prisma.EnumPassengerTypeFieldUpdateOperationsInput | $Enums.PassengerType
   dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nationality?: Prisma.StringFieldUpdateOperationsInput | string
   passportNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -873,6 +914,7 @@ export type PassengerSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   bookingId?: boolean
   firstName?: boolean
   lastName?: boolean
+  passengerType?: boolean
   dateOfBirth?: boolean
   nationality?: boolean
   passportNumber?: boolean
@@ -891,6 +933,7 @@ export type PassengerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   bookingId?: boolean
   firstName?: boolean
   lastName?: boolean
+  passengerType?: boolean
   dateOfBirth?: boolean
   nationality?: boolean
   passportNumber?: boolean
@@ -907,6 +950,7 @@ export type PassengerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   bookingId?: boolean
   firstName?: boolean
   lastName?: boolean
+  passengerType?: boolean
   dateOfBirth?: boolean
   nationality?: boolean
   passportNumber?: boolean
@@ -923,6 +967,7 @@ export type PassengerSelectScalar = {
   bookingId?: boolean
   firstName?: boolean
   lastName?: boolean
+  passengerType?: boolean
   dateOfBirth?: boolean
   nationality?: boolean
   passportNumber?: boolean
@@ -933,7 +978,7 @@ export type PassengerSelectScalar = {
   createdAt?: boolean
 }
 
-export type PassengerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "bookingId" | "firstName" | "lastName" | "dateOfBirth" | "nationality" | "passportNumber" | "passportExpiry" | "passportMrz" | "passportScanUrl" | "isPrimary" | "createdAt", ExtArgs["result"]["passenger"]>
+export type PassengerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "bookingId" | "firstName" | "lastName" | "passengerType" | "dateOfBirth" | "nationality" | "passportNumber" | "passportExpiry" | "passportMrz" | "passportScanUrl" | "isPrimary" | "createdAt", ExtArgs["result"]["passenger"]>
 export type PassengerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   checkin?: boolean | Prisma.Passenger$checkinArgs<ExtArgs>
@@ -958,6 +1003,7 @@ export type $PassengerPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     bookingId: string
     firstName: string
     lastName: string
+    passengerType: $Enums.PassengerType
     dateOfBirth: Date
     nationality: string
     passportNumber: string | null
@@ -1396,6 +1442,7 @@ export interface PassengerFieldRefs {
   readonly bookingId: Prisma.FieldRef<"Passenger", 'String'>
   readonly firstName: Prisma.FieldRef<"Passenger", 'String'>
   readonly lastName: Prisma.FieldRef<"Passenger", 'String'>
+  readonly passengerType: Prisma.FieldRef<"Passenger", 'PassengerType'>
   readonly dateOfBirth: Prisma.FieldRef<"Passenger", 'DateTime'>
   readonly nationality: Prisma.FieldRef<"Passenger", 'String'>
   readonly passportNumber: Prisma.FieldRef<"Passenger", 'String'>

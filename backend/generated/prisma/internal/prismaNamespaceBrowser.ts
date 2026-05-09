@@ -117,7 +117,7 @@ export const BookingScalarFieldEnum = {
   userId: 'userId',
   flightId: 'flightId',
   bookingReference: 'bookingReference',
-  LastName: 'LastName',
+  lastName: 'lastName',
   status: 'status',
   bookedAt: 'bookedAt',
   expiresAt: 'expiresAt'
@@ -131,6 +131,7 @@ export const PassengerScalarFieldEnum = {
   bookingId: 'bookingId',
   firstName: 'firstName',
   lastName: 'lastName',
+  passengerType: 'passengerType',
   dateOfBirth: 'dateOfBirth',
   nationality: 'nationality',
   passportNumber: 'passportNumber',
@@ -166,7 +167,6 @@ export const SeatScalarFieldEnum = {
   columnLetter: 'columnLetter',
   class: 'class',
   type: 'type',
-  isAvailable: 'isAvailable',
   reservedByCheckinId: 'reservedByCheckinId',
   reservedAt: 'reservedAt'
 } as const
@@ -209,6 +209,7 @@ export const BoardingPassScalarFieldEnum = {
   qrCodeUrl: 'qrCodeUrl',
   pdfUrl: 'pdfUrl',
   isSynced: 'isSynced',
+  syncedAt: 'syncedAt',
   issuedAt: 'issuedAt',
   expiresAt: 'expiresAt',
   offlinePayload: 'offlinePayload'
