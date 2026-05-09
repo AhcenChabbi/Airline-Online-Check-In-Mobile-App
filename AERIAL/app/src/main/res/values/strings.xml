@@ -1,3 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AERIAL</string>
+    <string name="company_name">AERIAL</string>
+
+    <!-- General -->
+    <string name="welcome">Welcome</string>
+    <string name="loading">Loading...</string>
+    <string name="error">Error</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+
+    <!-- Auth -->
+    <string name="login_title">Login</string>
+    <string name="login_subtitle">Access your bookings</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Sign In</string>
+    <string name="signup_prompt">Don\'t have an account?</string>
+    <string name="signup_action">Sign Up</string>
+    
+    <string name="register_title">Register</string>
+    <string name="register_subtitle">Join us!</string>
+    <string name="full_name_hint">Full Name</string>
+    <string name="phone_hint">Phone</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="register_button">Create Account</string>
+    <string name="login_prompt">Already have an account?</string>
+    <string name="login_action">Sign In</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_checkin">Check-in</string>
+    <string name="nav_boarding_pass">Passes</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">My Flights</string>
+    <string name="no_upcoming_flights">No upcoming flights</string>
+    <string name="find_flight_button">Find a Flight</string>
+    <string name="recent_searches">Recent Searches</string>
+    <string name="notifications">Notifications</string>
+
+    <!-- Check-in steps -->
+    <string name="passport_scan_title">Scan Passport</string>
+    <string name="continue_button">Continue</string>
+    <string name="details_review_title">Details Review</string>
+    <string name="seat_selection_title">Seat Selection</string>
+    <string name="confirm_seat">Confirm Seat</string>
+    <string name="baggage_title">Baggage Declaration</string>
+    <string name="special_requests_title">Special Requests</string>
+
+    <!-- Boarding pass -->
+    <string name="boarding_pass_title">Boarding Pass</string>
+    <string name="done">Done</string>
+    <string name="save_to_wallet">Add to Wallet</string>
+    
+    <!-- Flights & Search -->
+    <string name="search_flights">Search Flights</string>
+    <string name="search_hint">Flight Number, PNR...</string>
+    <string name="flight_status">Flight Status</string>
+    <string name="flight_details">Flight Details</string>
+    <string name="departure">Departure</string>
+    <string name="arrival">Arrival</string>
+    <string name="gate">Gate</string>
+    <string name="seat">Seat</string>
+    <string name="terminal">Terminal</string>
+    <string name="flight_lookup_title">Check-in</string>
+    <string name="find_your_flight">Find Your Flight</string>
+    <string name="retrieve_booking_desc">Enter your details to retrieve your booking.</string>
+    <string name="booking_ref_pnr">Booking Ref (PNR)</string>
+    <string name="booking_ref_eg">e.g. A8X9B2</string>
+    <string name="last_name">Last Name</string>
+    <string name="last_name_desc">As it appears on your passport</string>
+    <string name="results_below">Results Found</string>
+    <string name="search_result">Search Flights</string>
+    
+    <string name="find_my_booking">Find My Booking</string>
+
+    <!-- Validation errors -->
+    <string name="error_email_required">Email address is required</string>
+    <string name="error_email_invalid">Please enter a valid email address</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_password_short">Password must be at least 6 characters</string>
+    <string name="error_full_name_required">Full name is required</string>
+    <string name="error_full_name_invalid">Please enter a valid full name</string>
+    <string name="error_phone_required">Phone number is required</string>
+    <string name="error_phone_invalid">Please enter a valid phone number</string>
+    <string name="error_booking_required">Booking reference is required</string>
+    <string name="error_generic">An error occurred, please try again</string>
+
+    <!-- Offline -->
+    <string name="offline_message">You are offline</string>
+
+    <!-- Accessibility -->
+    <string name="back">Back</string>
+    <string name="dismiss_error">Dismiss error</string>
+    <string name="error_password_mismatch">Passwords do not match</string>
+
+    <!-- Missing stuff -->
+    <string name="align_passport">Align MRZ within frame</string>
+    <string name="home_dashboard_wip">Dashboard (Work In Progress)</string>
+    <string name="nav_boarding">Boarding Passes</string>
+    <string name="search_flight">Search Flight</string>
+    <string name="found_ref">PNR : %1$s</string>
+    <string name="gate_placeholder">TBD</string>
+    <string name="date_label">Date</string>
+    <string name="passenger_label">Passenger</string>
+    <string name="start_check_in">Start Check-in</string>
 </resources>

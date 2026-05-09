@@ -1,0 +1,24 @@
+package com.airline.checkin.presentation.navigation
+
+sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
+    object Login : Screen("login")
+    object Register : Screen("register")
+    object FlightLookup : Screen("flight_lookup")
+    object FlightDetail : Screen("flight_detail")
+    object PassportScan : Screen("passport_scan")
+    object DetailsReview : Screen("details_review")
+    object SeatSelection : Screen("seat_selection")
+    object BaggageDeclaration : Screen("baggage_declaration")
+    object SpecialRequests : Screen("special_requests")
+    object Confirmation : Screen("confirmation")
+    object BoardingPass : Screen("boarding_pass")
+    object OfflineBoarding : Screen("offline_boarding")
+
+    companion object {
+        const val HOME = "home"
+        const val CHECKIN = "checkin"
+        const val BOARDING = "boarding"
+        const val PROFILE = "profile"
+    }
+}
