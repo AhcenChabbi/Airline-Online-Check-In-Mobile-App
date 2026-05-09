@@ -54,3 +54,18 @@ export const confirmCheckIn = catchErrors(async (req: Request, res: Response) =>
   const boardingPass = await CheckInService.confirmCheckIn(req.params.checkinId);
   res.status(HTTP_STATUS.CREATED).json({ boardingPass });
 });
+
+export const getBoardingPass = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { checkinId } = req.params;
+    
+    const boardingPass = await CheckInService.getBoardingPass(checkinId);
+    
+    res.status(200).json({
+      success: true,
+      data: boardingPass,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

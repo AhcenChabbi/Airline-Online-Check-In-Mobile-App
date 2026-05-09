@@ -4,6 +4,7 @@ import PDFDocument from "pdfkit";
 import AppError from "./AppError.js";
 import * as HTTP_STATUS from "../constants/http.js";
 import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY } from './../config/env';
+import axios from "axios";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -47,10 +48,16 @@ export async function generateAndUploadQRCode(
 /**
  * Generates a PDF document in memory and streams it directly to Cloudinary
  */
-export async function generateAndUploadPDF(
+export async function generateAndUploadPDF( 
   offlinePayload: any, 
-  checkinId: string
+  checkinId: string,
+  qrCodeUrl: string
 ): Promise<string> {
+
+  // 1. Download the QR Code image as a Buffer first
+  const response = await axios.get(qrCodeUrl, { responseType: 'arraybuffer' });
+  const qrBuffer = Buffer.from(response.data, 'utf-8');
+
   return new Promise((resolve, reject) => {
     try {
       // 1. Initialize a new PDF Document
@@ -83,6 +90,15 @@ export async function generateAndUploadPDF(
       // Header
       doc.fontSize(24).font("Helvetica-Bold").text("BOARDING PASS", { align: "center" });
       doc.moveDown(2);
+
+      // 2. PASS THE BUFFER, NOT THE URL
+      // doc.image() knows how to handle a Buffer directly
+      doc.image(qrBuffer, {
+        fit: [150, 150], // Size of the QR code
+        align: 'center',
+        valign: 'center'
+      });
+      doc.moveDown(10); // Move cursor down after the image
 
       // Passenger Info
       doc.fontSize(14).font("Helvetica-Bold").text("PASSENGER DETAILS");

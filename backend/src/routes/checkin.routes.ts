@@ -15,5 +15,6 @@ router.post("/:checkinId/seats/select", CheckInController.selectSeat);
 router.post("/:checkinId/baggage", CheckInController.declareBaggage);
 router.post("/:checkinId/special-requests", CheckInController.submitSpecialRequests);
 router.post("/:checkinId/confirm", CheckInController.confirmCheckIn);
+router.get("/:checkinId/boarding-pass", CheckInController.getBoardingPass);
 
 export default router;

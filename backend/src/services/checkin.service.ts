@@ -353,7 +353,7 @@ export async function confirmCheckIn(checkinId: string) {
 
   // 2. Generate and upload assets OUTSIDE the transaction to avoid locking the DB
   const qrCodeUrl = await generateAndUploadQRCode(qrCodeData, checkinId);
-  const pdfUrl = await generateAndUploadPDF(offlinePayload, checkinId);
+  const pdfUrl = await generateAndUploadPDF(offlinePayload, checkinId, qrCodeUrl);
 
   // 3. Database Transaction
   const boardingPass = await prisma.$transaction(async (tx) => {
@@ -405,6 +405,23 @@ export async function confirmCheckIn(checkinId: string) {
 
     return bp;
   });
+
+  return boardingPass;
+}
+
+export async function getBoardingPass(checkinId: string) {
+  const boardingPass = await prisma.boardingPass.findUnique({
+    where: { checkinId },
+    // Optionally include passenger/seat info if you need it directly from the relation,
+    // though the offlinePayload already has a nice summary!
+  });
+
+  if (!boardingPass) {
+    throw new AppError(
+      "Boarding pass not found for this check-in.",
+      HTTP_STATUS.NOT_FOUND
+    );
+  }
 
   return boardingPass;
 }
