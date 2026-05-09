@@ -13,6 +13,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { NODE_ENV } from "./config/env";
 import { requireAuth } from "./middleware/auth";
+import checkinRoutes from "./routes/checkin.routes.js";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.get("/health", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/bookings", requireAuth, bookingRoutes);
+app.use("/api/checkin", checkinRoutes);
 
 if (NODE_ENV === "development") {
   app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
