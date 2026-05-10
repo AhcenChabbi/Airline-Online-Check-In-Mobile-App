@@ -14,6 +14,8 @@ sealed class Screen(val route: String) {
     object Confirmation : Screen("confirmation")
     object BoardingPass : Screen("boarding_pass")
     object OfflineBoarding : Screen("offline_boarding")
+    object Profile : Screen("profile")
+    object Notifications : Screen("notifications")
 
     companion object {
         const val HOME = "home"

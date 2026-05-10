@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AERIAL</string>
     <string name="company_name">AERIAL</string>
@@ -101,7 +101,7 @@
     <!-- Missing stuff -->
     <string name="align_passport">Align MRZ within frame</string>
     <string name="home_dashboard_wip">Dashboard (Work In Progress)</string>
-    <string name="nav_boarding">Boarding Passes</string>
+    <string name="nav_boarding">Passes</string>
     <string name="search_flight">Search Flight</string>
     <string name="found_ref">PNR : %1$s</string>
     <string name="gate_placeholder">TBD</string>

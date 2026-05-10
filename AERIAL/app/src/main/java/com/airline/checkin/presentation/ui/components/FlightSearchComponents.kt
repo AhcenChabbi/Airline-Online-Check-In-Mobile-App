@@ -2,17 +2,7 @@ package com.airline.checkin.presentation.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,16 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AirplanemodeActive
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,9 +27,6 @@ import androidx.compose.ui.unit.sp
 import com.airline.checkin.domain.model.Flight
 import com.airline.checkin.presentation.ui.theme.Spacing
 
-// ---------------------------------------------------------------------------
-// Generic labeled search field used on the "Find Your Flight" screen
-// ---------------------------------------------------------------------------
 @Composable
 fun AeroSearchTextField(
     label: String,
@@ -61,10 +39,9 @@ fun AeroSearchTextField(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = label.uppercase(),
+            text = label,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp
+                fontWeight = FontWeight.Bold
             ),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -77,65 +54,41 @@ fun AeroSearchTextField(
                 Icon(
                     imageVector = leadingIcon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primaryContainer
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
                 )
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(12.dp),
             singleLine = true,
             keyboardOptions = keyboardOptions,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedBorderColor = MaterialTheme.colorScheme.primaryContainer,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
             )
         )
     }
 }
 
-// ---------------------------------------------------------------------------
-// Primary "Search Flight" action button
-// ---------------------------------------------------------------------------
 @Composable
 fun SearchFlightButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    Button(
+    ConfirmButton(
+        text = stringResource(R.string.search_flight),
         onClick = onClick,
         enabled = enabled,
+        icon = Icons.Rounded.Search,
         modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = Color.White,
-            disabledContainerColor = MaterialTheme.colorScheme.outlineVariant,
-            disabledContentColor = MaterialTheme.colorScheme.outline
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Search,
-            contentDescription = null,
-            tint = if (enabled) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.outline,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = stringResource(R.string.search_flight),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-        )
-    }
+    )
 }
 
-// ---------------------------------------------------------------------------
-// FlightResultCard – binds to the Flight domain entity
-// ---------------------------------------------------------------------------
 @Composable
 fun FlightResultCard(
     flight: Flight,
@@ -146,12 +99,12 @@ fun FlightResultCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(Spacing.mdPlus),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // ── Header row: flight number + airline
+            // Header: Flight Info
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,53 +117,52 @@ fun FlightResultCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.AirplanemodeActive,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primaryContainer,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(Spacing.sm))
                     Column {
                         Text(
-                            text = flight.number,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
+                            text = flight.flightNumber,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = flight.airline,
+                            text = "${flight.airlineName} • ${flight.aircraftType}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
-                // Status chip
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(percent = 50))
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.found_ref, bookingReference),
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        text = bookingReference,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                thickness = 0.5.dp,
                 modifier = Modifier.padding(horizontal = Spacing.mdPlus)
             )
 
-            // ── Flight path: origin → destination
+            // Flight Route
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -218,135 +170,82 @@ fun FlightResultCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(horizontalAlignment = Alignment.Start) {
+                Column {
                     Text(
-                        text = flight.originCode,
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        text = flight.originIata,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF051849)
                     )
-                    Text(text = flight.origin, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                    Text(
-                        text = flight.departureTime,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Text(text = flight.originCity, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = flight.departureTime, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
 
-                // Middle: plane icon + dashed line + duration (gate info)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = Spacing.sm)
+                    modifier = Modifier.weight(1f).padding(horizontal = Spacing.sm)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.AirplanemodeActive,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.size(24.dp)
+                        tint = Color(0xFFD4AF37),
+                        modifier = Modifier.size(20.dp)
                     )
-                    val lineColor = MaterialTheme.colorScheme.outlineVariant
-                    Canvas(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp)
-                    ) {
+                    Canvas(modifier = Modifier.fillMaxWidth().height(8.dp).padding(vertical = 3.dp)) {
                         drawLine(
-                            color = lineColor,
+                            color = Color.LightGray,
                             start = Offset(0f, size.height / 2),
                             end = Offset(size.width, size.height / 2),
-                            strokeWidth = 3f,
+                            strokeWidth = 2f,
                             pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
                         )
                     }
-                    if (flight.gate.isNotBlank()) {
-                        Text(
-                            text = stringResource(R.string.gate_placeholder, flight.gate),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
+                    Text(text = flight.status, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = flight.destinationCode,
-                        style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        text = flight.destinationIata,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF051849)
                     )
-                    Text(text = flight.destination, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                    Text(
-                        text = flight.arrivalTime,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Text(text = flight.destinationCity, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = flight.arrivalTime, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
 
-            // ── Date & passenger info
+            // Passenger & Date
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Spacing.mdPlus),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.xl)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text(
-                        text = stringResource(R.string.date_label),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    Text(
-                        text = flight.date,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Text("PASSENGER", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(bookedPassengerName.ifBlank { "—" }, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 }
-                Column {
-                    Text(
-                        text = stringResource(R.string.passenger_label),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    Text(
-                        text = bookedPassengerName.ifBlank { "—" },
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text("DATE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(flight.date, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 }
             }
 
-            Spacer(modifier = Modifier.height(Spacing.md))
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
-            // ── Start Check-In CTA
+            // CTA
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(Spacing.mdPlus)
             ) {
-                Button(
-                    onClick = onStartCheckIn,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.QrCodeScanner,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.start_check_in),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
+                ConfirmButton(
+                    text = stringResource(R.string.start_check_in),
+                    icon = Icons.Rounded.QrCodeScanner,
+                    onClick = onStartCheckIn
+                )
             }
         }
     }
