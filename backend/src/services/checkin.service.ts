@@ -4,7 +4,7 @@ import * as HTTP_STATUS from "../constants/http.js";
 import { generateBoardingPassToken } from "../utils/boardingPass.js";
 import {
   generateAndUploadQRCode,
-  generateAndUploadPDF,
+  generateBoardingPassPdfBuffer,
 } from "../utils/assets.js";
 
 import type {
@@ -353,7 +353,7 @@ export async function confirmCheckIn(checkinId: string) {
 
   // 2. Generate and upload assets OUTSIDE the transaction to avoid locking the DB
   const qrCodeUrl = await generateAndUploadQRCode(qrCodeData, checkinId);
-  const pdfUrl = await generateAndUploadPDF(offlinePayload, checkinId, qrCodeUrl);
+  // const pdfUrl = await generateAndUploadPDF(offlinePayload, checkinId, qrCodeUrl);
 
   // 3. Database Transaction
   const boardingPass = await prisma.$transaction(async (tx) => {
@@ -364,7 +364,7 @@ export async function confirmCheckIn(checkinId: string) {
         seatId: seat.id,
         qrCodeData,
         qrCodeUrl,     // <-- Added
-        pdfUrl,        // <-- Added
+        // pdfUrl,       
         expiresAt,
         offlinePayload,
       },

@@ -9,6 +9,8 @@ import {
   baggageSchema,
   specialRequestsSchema,
 } from "../schemas/checkin.schema.js";
+import AppError from "../utils/AppError.js";
+import { generateBoardingPassPdfBuffer } from "../utils/assets.js";
 
 export const initiateCheckIn = catchErrors(async (req: Request, res: Response) => {
   const body = initiateCheckInSchema.parse(req.body);
@@ -69,3 +71,21 @@ export const getBoardingPass = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+
+export const downloadBoardingPassPdf = catchErrors(async (req: Request, res: Response) => {
+  const boardingPass = await CheckInService.getBoardingPass(req.params.checkinId);
+  const payload = boardingPass.offlinePayload as any;
+
+  if (!boardingPass.qrCodeUrl) {
+    throw new AppError("QR code not available for this boarding pass.", HTTP_STATUS.NOT_FOUND);
+  }
+
+  const pdfBuffer = await generateBoardingPassPdfBuffer(payload, boardingPass.qrCodeUrl);
+
+  res.set({
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="boarding-pass-${req.params.checkinId}.pdf"`,
+    "Content-Length": pdfBuffer.length,
+  });
+  res.end(pdfBuffer);
+});

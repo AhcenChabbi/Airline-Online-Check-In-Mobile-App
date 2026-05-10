@@ -16,5 +16,6 @@ router.post("/:checkinId/baggage", CheckInController.declareBaggage);
 router.post("/:checkinId/special-requests", CheckInController.submitSpecialRequests);
 router.post("/:checkinId/confirm", CheckInController.confirmCheckIn);
 router.get("/:checkinId/boarding-pass", CheckInController.getBoardingPass);
+router.get("/:checkinId/boarding-pass/pdf", CheckInController.downloadBoardingPassPdf);
 
 export default router;

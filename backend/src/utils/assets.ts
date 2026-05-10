@@ -45,91 +45,48 @@ export async function generateAndUploadQRCode(
 /**
  * Placeholder for PDF generation
  */
-/**
- * Generates a PDF document in memory and streams it directly to Cloudinary
- */
-export async function generateAndUploadPDF( 
-  offlinePayload: any, 
-  checkinId: string,
+export async function generateBoardingPassPdfBuffer(
+  offlinePayload: any,
   qrCodeUrl: string
-): Promise<string> {
-
-  // 1. Download the QR Code image as a Buffer first
-  const response = await axios.get(qrCodeUrl, { responseType: 'arraybuffer' });
-  const qrBuffer = Buffer.from(response.data, 'utf-8');
+): Promise<Buffer> {
+  const response = await axios.get(qrCodeUrl, { responseType: "arraybuffer" });
+  const qrBuffer = Buffer.from(response.data);
 
   return new Promise((resolve, reject) => {
-    try {
-      // 1. Initialize a new PDF Document
-      const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const chunks: Buffer[] = [];
 
-      // 2. Set up the Cloudinary upload stream
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: "boarding_passes/pdfs",
-          public_id: `pdf_${checkinId}`,
-          format: "pdf", // Force PDF format
-        },
-        (error, result) => {
-          if (error) {
-            console.error("Cloudinary PDF Upload Error:", error);
-            return reject(
-              new AppError("Failed to upload PDF.", HTTP_STATUS.INTERNAL_SERVER_ERROR)
-            );
-          }
-          // Resolve the promise with the secure URL once upload finishes
-          if (result) resolve(result.secure_url);
-        }
-      );
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
 
-      // 3. Pipe the PDF generator directly into the Cloudinary stream
-      doc.pipe(uploadStream);
+    doc.fontSize(24).font("Helvetica-Bold").text("BOARDING PASS", { align: "center" });
+    doc.moveDown();
+    doc.image(qrBuffer, { fit: [150, 150], align: "center" });
+    doc.moveDown(10);
 
-      // --- Draw the PDF Content ---
-      
-      // Header
-      doc.fontSize(24).font("Helvetica-Bold").text("BOARDING PASS", { align: "center" });
-      doc.moveDown(2);
+    doc.fontSize(14).font("Helvetica-Bold").text("PASSENGER DETAILS");
+    doc.fontSize(12).font("Helvetica")
+      .text(`Name: ${offlinePayload.passenger.firstName} ${offlinePayload.passenger.lastName}`)
+      .text(`Passport: ${offlinePayload.passenger.passportNumber}`);
+    doc.moveDown();
 
-      // 2. PASS THE BUFFER, NOT THE URL
-      // doc.image() knows how to handle a Buffer directly
-      doc.image(qrBuffer, {
-        fit: [150, 150], // Size of the QR code
-        align: 'center',
-        valign: 'center'
-      });
-      doc.moveDown(10); // Move cursor down after the image
+    doc.fontSize(14).font("Helvetica-Bold").text("FLIGHT DETAILS");
+    doc.fontSize(12).font("Helvetica")
+      .text(`Flight Number: ${offlinePayload.flight.flightNumber}`)
+      .text(`Route: ${offlinePayload.flight.origin} to ${offlinePayload.flight.destination}`)
+      .text(`Departure: ${new Date(offlinePayload.flight.departureAt).toLocaleString()}`);
+    doc.moveDown();
 
-      // Passenger Info
-      doc.fontSize(14).font("Helvetica-Bold").text("PASSENGER DETAILS");
-      doc.fontSize(12).font("Helvetica")
-         .text(`Name: ${offlinePayload.passenger.firstName} ${offlinePayload.passenger.lastName}`)
-         .text(`Passport: ${offlinePayload.passenger.passportNumber}`);
-      doc.moveDown(1.5);
+    doc.fontSize(14).font("Helvetica-Bold").text("SEAT & BOARDING");
+    doc.fontSize(12).font("Helvetica")
+      .text(`Seat: ${offlinePayload.seat.seatCode}`)
+      .text(`Class: ${offlinePayload.seat.class}`);
+    doc.moveDown(3);
 
-      // Flight Info
-      doc.fontSize(14).font("Helvetica-Bold").text("FLIGHT DETAILS");
-      doc.fontSize(12).font("Helvetica")
-         .text(`Flight Number: ${offlinePayload.flight.flightNumber}`)
-         .text(`Route: ${offlinePayload.flight.origin} to ${offlinePayload.flight.destination}`)
-         .text(`Departure: ${new Date(offlinePayload.flight.departureAt).toLocaleString()}`);
-      doc.moveDown(1.5);
+    doc.fontSize(10).font("Helvetica-Oblique")
+      .text("Please present this document at the gate.", { align: "center" });
 
-      // Seat Info
-      doc.fontSize(14).font("Helvetica-Bold").text("SEAT & BOARDING");
-      doc.fontSize(12).font("Helvetica")
-         .text(`Seat: ${offlinePayload.seat.seatCode}`)
-         .text(`Class: ${offlinePayload.seat.class}`);
-      
-      doc.moveDown(3);
-      doc.fontSize(10).font("Helvetica-Oblique").text("Please present this document at the gate.", { align: "center" });
-
-      // 4. Finalize the PDF. This automatically ends the stream and triggers the upload.
-      doc.end();
-
-    } catch (error) {
-      console.error("PDF Generation Error:", error);
-      reject(new AppError("Failed to generate PDF.", HTTP_STATUS.INTERNAL_SERVER_ERROR));
-    }
+    doc.end();
   });
 }
