@@ -11,3 +11,4 @@ export const JWT_SECRET = getEnv("JWT_SECRET");
 export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET");
 export const GOOGLE_CLIENT_ID = getEnv("GOOGLE_CLIENT_ID");
 export const DATABASE_URL = getEnv("DATABASE_URL");
+export const REDIS_URL = getEnv("REDIS_URL", "redis://localhost:6379");
