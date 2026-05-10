@@ -62,7 +62,6 @@ fun AirlineBottomNavBar(navController: NavController) {
             NavigationBarItem(
                 selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                 onClick = {
-                    if (item.route == Screen.PROFILE) return@NavigationBarItem
                     navController.navigate(item.route) {
                         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                         launchSingleTop = true

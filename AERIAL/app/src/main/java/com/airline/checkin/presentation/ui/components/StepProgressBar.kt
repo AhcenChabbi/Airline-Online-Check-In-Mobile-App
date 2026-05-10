@@ -22,6 +22,18 @@ fun StepProgressBar(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "STEP $currentStep OF $totalSteps",
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp,
+                fontSize = 11.sp
+            ),
+            color = MaterialTheme.colorScheme.outline
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.smPlus))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -40,17 +52,5 @@ fun StepProgressBar(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(Spacing.smPlus))
-
-        Text(
-            text = "STEP $currentStep OF $totalSteps",
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp,
-                fontSize = 11.sp
-            ),
-            color = MaterialTheme.colorScheme.outline
-        )
     }
 }

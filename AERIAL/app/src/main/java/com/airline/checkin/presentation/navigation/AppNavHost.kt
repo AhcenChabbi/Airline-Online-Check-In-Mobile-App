@@ -46,12 +46,12 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         }
 
         composable(Screen.HOME) {
-            androidx.compose.foundation.layout.Column(modifier = Modifier.fillMaxSize()) {
-                com.airline.checkin.presentation.ui.components.AirlineTopBar(companyName = androidx.compose.ui.res.stringResource(com.airline.checkin.R.string.company_name), onNotificationClick = {})
-                androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                    androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(com.airline.checkin.R.string.home_dashboard_wip))
-                }
-            }
+            com.airline.checkin.presentation.ui.screens.home.HomeScreen(
+                userName = "Abdu",
+                onNavigateToSearch = { navController.navigate(Screen.FlightLookup.route) },
+                onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) }
+            )
         }
 
         composable(Screen.Register.route) {
@@ -67,19 +67,39 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
 
         composable(Screen.FlightLookup.route) {
             FlightLookupScreen(
-                    onFlightSelected = { navController.navigate(Screen.FlightDetail.route) },
-                    onLogout = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.FlightLookup.route) { inclusive = true }
-                        }
+                onFlightSelected = { navController.navigate(Screen.PassportScan.route) },
+                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.FlightLookup.route) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable(Screen.Profile.route) {
+            com.airline.checkin.presentation.ui.screens.profile.ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Profile.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Notifications.route) {
+            com.airline.checkin.presentation.ui.screens.notification.NotificationScreen(
+                onBack = { navController.popBackStack() }
             )
         }
 
         composable(Screen.FlightDetail.route) {
             FlightDetailScreen(
                     onContinueToCheckIn = { navController.navigate(Screen.PassportScan.route) },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) }
             )
         }
 
