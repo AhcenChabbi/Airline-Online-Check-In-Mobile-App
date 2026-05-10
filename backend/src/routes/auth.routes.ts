@@ -5,18 +5,15 @@ import {
   refreshTokenController,
   registerWithEmailController,
 } from "../controllers/auth.controller";
-import {
-  authRateLimiter,
-  bruteForceProtection,
-} from "../middleware/authProtection";
+import { authLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
 
-router.use(authRateLimiter);
+router.use(authLimiter);
 
 router.post("/register", registerWithEmailController);
-router.post("/login", bruteForceProtection, loginWithEmailController);
-router.post("/google", bruteForceProtection, loginWithGoogleController);
-router.post("/refresh", bruteForceProtection, refreshTokenController);
+router.post("/login", loginWithEmailController);
+router.post("/google", loginWithGoogleController);
+router.post("/refresh", refreshTokenController);
 
 export default router;

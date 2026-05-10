@@ -10,5 +10,10 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
 volumes:
   db:
