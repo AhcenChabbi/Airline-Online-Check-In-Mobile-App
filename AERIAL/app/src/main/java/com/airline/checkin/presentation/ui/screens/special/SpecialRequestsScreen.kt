@@ -1,129 +1,126 @@
 package com.airline.checkin.presentation.ui.screens.special
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Accessible
+import androidx.compose.material.icons.rounded.ChildCare
+import androidx.compose.material.icons.rounded.Pets
+import androidx.compose.material.icons.rounded.Restaurant
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.airline.checkin.presentation.ui.components.AirlineTopBar
-import com.airline.checkin.presentation.ui.components.PrimaryButton
+import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
 
+/**
+ * Maps to backend SpecialRequest model:
+ * Category: DIETARY, ACCESSIBILITY, INFANT, PET, MEDICAL, OTHER
+ * Detail: e.g. "VGML", "WCHR", "INFT", "PETC"
+ */
 @Composable
 fun SpecialRequestsScreen(onContinue: () -> Unit, onBack: () -> Unit) {
-    var wheelchair by remember { mutableStateOf(false) }
-    var vegetarianMeal by remember { mutableStateOf(false) }
-    var infantSeat by remember { mutableStateOf(false) }
-    var extraLegroom by remember { mutableStateOf(false) }
-    var unaccompaniedMinor by remember { mutableStateOf(false) }
+    // These states will eventually be part of a list of SpecialRequest objects
+    var hasDietary by remember { mutableStateOf(false) }
+    var hasAccessibility by remember { mutableStateOf(false) }
+    var hasInfant by remember { mutableStateOf(false) }
+    var hasPet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             AirlineTopBar(
                 companyName = "AERIAL",
-                onNotificationClick = {}
+                onNotificationClick = {},
+                onBackClick = onBack
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(Spacing.gutter)
                 .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.gutter)
         ) {
-            Spacer(modifier = Modifier.height(Spacing.xl))
+            Spacer(modifier = Modifier.height(Spacing.md))
+
+            // 1. Progress Bar
+            StepProgressBar(currentStep = 4, totalSteps = 5)
+
+            Spacer(modifier = Modifier.height(Spacing.lg))
 
             Text(
                 text = "Special Requests",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(Spacing.sm))
+            Spacer(modifier = Modifier.height(Spacing.md))
 
             Text(
                 text = "Let us know your needs so we can assist you better.",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(Spacing.mdPlus))
+            Spacer(modifier = Modifier.height(Spacing.xl))
 
-            SpecialRequestItem(
-                label = "Wheelchair assistance",
-                checked = wheelchair,
-                onCheckedChange = { wheelchair = it }
+            // 2. Request Items (Mapped to RequestCategory)
+            
+            // DIETARY Category
+            SpecialRequestCard(
+                title = "Special meal",
+                subtitle = "Dietary requirements (VGML, Halal...)",
+                icon = Icons.Rounded.Restaurant,
+                checked = hasDietary,
+                onCheckedChange = { hasDietary = it }
             )
-            SpecialRequestItem(
-                label = "Vegetarian meal",
-                checked = vegetarianMeal,
-                onCheckedChange = { vegetarianMeal = it }
-            )
-            SpecialRequestItem(
-                label = "Infant seat / bassinet",
-                checked = infantSeat,
-                onCheckedChange = { infantSeat = it }
-            )
-            SpecialRequestItem(
-                label = "Extra legroom (subject to availability)",
-                checked = extraLegroom,
-                onCheckedChange = { extraLegroom = it }
-            )
-            SpecialRequestItem(
-                label = "Unaccompanied minor service",
-                checked = unaccompaniedMinor,
-                onCheckedChange = { unaccompaniedMinor = it }
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(Spacing.mdPlus))
-
-            PrimaryButton(text = "Continue", onClick = onContinue)
 
             Spacer(modifier = Modifier.height(Spacing.md))
-        }
-    }
-}
 
-@Composable
-private fun SpecialRequestItem(
-    label: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
-        Spacer(modifier = Modifier.width(Spacing.sm))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+            // ACCESSIBILITY Category
+            SpecialRequestCard(
+                title = "Assistance",
+                subtitle = "Mobility support (Wheelchair WCHR)",
+                icon = Icons.Rounded.Accessible,
+                checked = hasAccessibility,
+                onCheckedChange = { hasAccessibility = it }
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.md))
+
+            // INFANT Category
+            SpecialRequestCard(
+                title = "Infant onboard",
+                subtitle = "Under 2 years old (INFT)",
+                icon = Icons.Rounded.ChildCare,
+                checked = hasInfant,
+                onCheckedChange = { hasInfant = it }
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.md))
+
+            // PET Category
+            SpecialRequestCard(
+                title = "Pet onboard",
+                subtitle = "Cabin or cargo (PETC)",
+                icon = Icons.Rounded.Pets,
+                checked = hasPet,
+                onCheckedChange = { hasPet = it }
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.xxl))
+
+            // 3. Complete Button
+            ConfirmButton(
+                text = "Complete Check-in",
+                onClick = onContinue,
+                modifier = Modifier.padding(bottom = Spacing.lg)
+            )
+        }
     }
 }

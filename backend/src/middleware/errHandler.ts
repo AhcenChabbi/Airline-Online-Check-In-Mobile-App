@@ -2,6 +2,7 @@ import { ErrorRequestHandler, Response } from "express";
 import { ZodError } from "zod";
 import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from "../constants/http";
 import AppError from "../utils/AppError";
+import { NODE_ENV } from "../config/env";
 
 const handleZodError = (res: Response, error: ZodError) => {
   const errors = error.issues.map((issue) => ({
@@ -18,7 +19,9 @@ const handleAppError = (res: Response, error: AppError) => {
 };
 
 const errHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.log(`PATH ${req.path}`, err);
+  if (NODE_ENV === "development") {
+    console.log(`PATH ${req.path}`, err);
+  }
 
   if (err instanceof ZodError) {
     return handleZodError(res, err);

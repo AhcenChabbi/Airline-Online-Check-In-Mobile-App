@@ -96,7 +96,7 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.1")
 
     // ML Kit Text Recognition (MRZ)
-    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 
     // Tests
     testImplementation(libs.junit)

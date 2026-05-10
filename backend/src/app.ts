@@ -14,6 +14,7 @@ import { swaggerSpec } from "./docs/swagger";
 import { NODE_ENV } from "./config/env";
 import { requireAuth } from "./middleware/auth";
 import checkinRoutes from "./routes/checkin.routes.js";
+import { apiLimiter } from "./middleware/rateLimiter";
 
 const app = express();
 
@@ -26,9 +27,7 @@ app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/health", async (req, res) => {
-  res.status(OK).json({ message: "Server is healthy" });
-});
+app.use("/api", apiLimiter);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
@@ -42,6 +41,10 @@ if (NODE_ENV === "development") {
     res.send(swaggerSpec);
   });
 }
+
+app.get("/health", async (req, res) => {
+  res.status(OK).json({ message: "Server is healthy" });
+});
 
 app.use(errHandler);
 

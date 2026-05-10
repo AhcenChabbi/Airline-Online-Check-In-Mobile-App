@@ -2,15 +2,19 @@ package com.airline.checkin.domain.model
 
 data class Flight(
     val id: String,
-    val number: String,
-    val airline: String,
-    val origin: String,
-    val originCode: String,
-    val destination: String,
-    val destinationCode: String,
+    val flightNumber: String,
+    val airlineCode: String,
+    val airlineName: String = "AERIAL",
+    val originIata: String,
+    val originCity: String,
+    val destinationIata: String,
+    val destinationCity: String,
     val departureTime: String,
     val arrivalTime: String,
     val date: String,
+    val aircraftType: String = "A320",
+    val totalRows: Int = 30,
+    val seatsPerRow: Int = 6,
     val gate: String = "",
-    val status: String = "On Time"
+    val status: String = "SCHEDULED"
 )
