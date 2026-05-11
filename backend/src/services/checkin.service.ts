@@ -1,11 +1,8 @@
-import { prisma } from "../lib/prisma.js";
-import AppError from "../utils/AppError.js";
-import * as HTTP_STATUS from "../constants/http.js";
-import { generateBoardingPassToken } from "../utils/boardingPass.js";
-import {
-  generateAndUploadQRCode,
-  generateBoardingPassPdfBuffer,
-} from "../utils/assets.js";
+import { prisma } from "../lib/prisma";
+import AppError from "../utils/AppError";
+import * as HTTP_STATUS from "../constants/http";
+import { generateBoardingPassToken } from "../utils/boardingPass";
+import { generateAndUploadQRCode } from "../utils/assets.js";
 
 import type {
   PassportScanInput,
@@ -300,12 +297,12 @@ export async function confirmCheckIn(checkinId: string) {
 
   if (!checkin)
     throw new AppError("Check-in not found.", HTTP_STATUS.NOT_FOUND);
-  
+
   // 2. CHECK IF IT IS ALREADY COMPLETED OR IF A PASS EXISTS
   if (checkin.status === "COMPLETED" || checkin.boardingPass) {
     throw new AppError(
       "Check-in has already been completed and a boarding pass issued.",
-      HTTP_STATUS.CONFLICT // 409 Conflict is better than 500
+      HTTP_STATUS.CONFLICT, // 409 Conflict is better than 500
     );
   }
   assertStep(checkin.currentStep, "CONFIRMATION", "check-in confirmation");
@@ -363,8 +360,8 @@ export async function confirmCheckIn(checkinId: string) {
         passengerId: passenger.id,
         seatId: seat.id,
         qrCodeData,
-        qrCodeUrl,     // <-- Added
-        // pdfUrl,       
+        qrCodeUrl, // <-- Added
+        // pdfUrl,
         expiresAt,
         offlinePayload,
       },
@@ -397,9 +394,9 @@ export async function confirmCheckIn(checkinId: string) {
           payload: {
             title: "Check-in Complete! ✈️",
             body: `Your boarding pass for flight ${flight.flightNumber} to ${flight.destIata} is ready.`,
-            deep_link: `app://boarding-pass/${bp.id}` // For mobile app routing
+            deep_link: `app://boarding-pass/${bp.id}`, // For mobile app routing
           },
-        }
+        },
       });
     }
 
@@ -419,7 +416,7 @@ export async function getBoardingPass(checkinId: string) {
   if (!boardingPass) {
     throw new AppError(
       "Boarding pass not found for this check-in.",
-      HTTP_STATUS.NOT_FOUND
+      HTTP_STATUS.NOT_FOUND,
     );
   }
 
