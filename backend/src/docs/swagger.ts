@@ -10,7 +10,10 @@ import {
   authResponseSchema,
 } from "../schemas/auth.schema";
 import { PORT } from "../config/env";
-import userSchema, { userMeResponseSchema } from "../schemas/user.schema";
+import userSchema, {
+  userMeResponseSchema,
+  registerFcmTokenSchema,
+} from "../schemas/user.schema";
 import { healthResponseSchema } from "../schemas/common.schema";
 import {
   bookingLookupResponseSchema,
@@ -42,6 +45,7 @@ registry.register("PassportScanInput", passportScanSchema);
 registry.register("SeatSelectionInput", seatSelectionSchema);
 registry.register("BaggageInput", baggageSchema);
 registry.register("SpecialRequestsInput", specialRequestsSchema);
+registry.register("RegisterFcmTokenInput", registerFcmTokenSchema);
 
 registry.registerPath({
   method: "get",
@@ -367,6 +371,22 @@ registry.registerPath({
         "application/pdf": { schema: { type: "string", format: "binary" } },
       },
     },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/users/fcm-token",
+  tags: ["Users"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: registerFcmTokenSchema } },
+    },
+  },
+  responses: {
+    200: { description: "FCM token registered successfully" },
   },
 });
 

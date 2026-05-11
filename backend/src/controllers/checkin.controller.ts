@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import  catchErrors  from "../utils/catchErrors.js";
 import * as HTTP_STATUS from "../constants/http.js";
 import * as CheckInService from "../services/checkin.service.js";

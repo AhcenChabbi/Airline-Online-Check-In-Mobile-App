@@ -15,6 +15,7 @@ import { NODE_ENV } from "./config/env";
 import { requireAuth } from "./middleware/auth";
 import checkinRoutes from "./routes/checkin.routes.js";
 import { apiLimiter } from "./middleware/rateLimiter";
+import { bullBoardServerAdapter } from "./config/bullBoard.js";
 
 const app = express();
 
@@ -28,13 +29,14 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiLimiter);
-
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/bookings", requireAuth, bookingRoutes);
 app.use("/api/checkin", checkinRoutes);
 
+
 if (NODE_ENV === "development") {
+  app.use("/admin/queues", bullBoardServerAdapter.getRouter());
   app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.use("/api/docs.json", (req, res) => {
     res.setHeader("Content-Type", "application/json");

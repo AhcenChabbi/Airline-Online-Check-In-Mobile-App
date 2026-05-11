@@ -15,3 +15,4 @@ export const CLOUDINARY_CLOUD_NAME = getEnv("CLOUDINARY_CLOUD_NAME");
 export const CLOUDINARY_API_KEY = getEnv("CLOUDINARY_API_KEY");
 export const CLOUDINARY_API_SECRET = getEnv("CLOUDINARY_API_SECRET");
 export const REDIS_URL = getEnv("REDIS_URL", "redis://localhost:6379");
+export const FCM_SERVICE_ACCOUNT_PATH = getEnv("FCM_SERVICE_ACCOUNT_PATH");

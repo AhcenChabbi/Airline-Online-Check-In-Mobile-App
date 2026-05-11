@@ -6,6 +6,7 @@ import {
   generateAndUploadQRCode,
   generateBoardingPassPdfBuffer,
 } from "../utils/assets.js";
+import { enqueueNotification } from "../queues/notificationQueue.js";
 
 import type {
   PassportScanInput,
@@ -300,12 +301,12 @@ export async function confirmCheckIn(checkinId: string) {
 
   if (!checkin)
     throw new AppError("Check-in not found.", HTTP_STATUS.NOT_FOUND);
-  
+
   // 2. CHECK IF IT IS ALREADY COMPLETED OR IF A PASS EXISTS
   if (checkin.status === "COMPLETED" || checkin.boardingPass) {
     throw new AppError(
       "Check-in has already been completed and a boarding pass issued.",
-      HTTP_STATUS.CONFLICT // 409 Conflict is better than 500
+      HTTP_STATUS.CONFLICT, // 409 Conflict is better than 500
     );
   }
   assertStep(checkin.currentStep, "CONFIRMATION", "check-in confirmation");
@@ -356,55 +357,70 @@ export async function confirmCheckIn(checkinId: string) {
   // const pdfUrl = await generateAndUploadPDF(offlinePayload, checkinId, qrCodeUrl);
 
   // 3. Database Transaction
-  const boardingPass = await prisma.$transaction(async (tx) => {
-    const bp = await tx.boardingPass.create({
-      data: {
-        checkinId,
-        passengerId: passenger.id,
-        seatId: seat.id,
-        qrCodeData,
-        qrCodeUrl,     // <-- Added
-        // pdfUrl,       
-        expiresAt,
-        offlinePayload,
-      },
-    });
-
-    // Update CheckIn Status
-    await tx.checkIn.update({
-      where: { id: checkinId },
-      data: {
-        status: "COMPLETED",
-        completedAt: new Date(),
-      },
-    });
-
-    // Update Booking Status
-    await tx.booking.update({
-      where: { id: checkin.bookingId },
-      data: { status: "CHECKED_IN" },
-    });
-
-    // 4. Create Notification (Only if the booking is linked to a User)
-    if (checkin.booking.userId) {
-      await tx.notification.create({
+  const { boardingPass, notificationRecord } = await prisma.$transaction(
+    async (tx) => {
+      const bp = await tx.boardingPass.create({
         data: {
-          userId: checkin.booking.userId,
-          bookingId: checkin.booking.id,
-          type: "CHECKIN_CONFIRMED",
-          channel: "PUSH",
-          status: "PENDING", // Ready to be picked up by a background worker
-          payload: {
-            title: "Check-in Complete! ✈️",
-            body: `Your boarding pass for flight ${flight.flightNumber} to ${flight.destIata} is ready.`,
-            deep_link: `app://boarding-pass/${bp.id}` // For mobile app routing
-          },
-        }
+          checkinId,
+          passengerId: passenger.id,
+          seatId: seat.id,
+          qrCodeData,
+          qrCodeUrl, // <-- Added
+          // pdfUrl,
+          expiresAt,
+          offlinePayload,
+        },
       });
-    }
 
-    return bp;
-  });
+      // Update CheckIn Status
+      await tx.checkIn.update({
+        where: { id: checkinId },
+        data: {
+          status: "COMPLETED",
+          completedAt: new Date(),
+        },
+      });
+
+      // Update Booking Status
+      await tx.booking.update({
+        where: { id: checkin.bookingId },
+        data: { status: "CHECKED_IN" },
+      });
+
+      // 4. Create Notification (Only if the booking is linked to a User)
+      let notificationRecord = null;
+      if (checkin.booking.userId) {
+        notificationRecord = await tx.notification.create({
+          data: {
+            userId: checkin.booking.userId,
+            bookingId: checkin.booking.id,
+            type: "CHECKIN_CONFIRMED",
+            channel: "PUSH",
+            status: "PENDING",
+            payload: {
+              title: "Check-in Complete! ✈️",
+              body: `Your boarding pass for flight ${flight.flightNumber} to ${flight.destIata} is ready.`,
+              deep_link: `app://boarding-pass/${bp.id}`,
+            },
+          },
+        });
+      }
+
+      return { boardingPass: bp, notificationRecord };
+    },
+  );
+
+  if (notificationRecord && checkin.booking.userId) {
+    await enqueueNotification({
+      notificationId: notificationRecord.id,
+      userId: checkin.booking.userId,
+      payload: notificationRecord.payload as {
+        title: string;
+        body: string;
+        deep_link?: string;
+      },
+    });
+  }
 
   return boardingPass;
 }
@@ -419,7 +435,7 @@ export async function getBoardingPass(checkinId: string) {
   if (!boardingPass) {
     throw new AppError(
       "Boarding pass not found for this check-in.",
-      HTTP_STATUS.NOT_FOUND
+      HTTP_STATUS.NOT_FOUND,
     );
   }
 
