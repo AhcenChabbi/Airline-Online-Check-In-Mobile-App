@@ -1,8 +1,8 @@
 import { Worker } from "bullmq";
-import bullmqRedis from "../config/bullmqRedis.js";
-import { prisma } from "../lib/prisma.js";
-import { sendPushNotification } from "../utils/fcm.js";
-import type { NotificationJobData } from "../queues/notificationQueue.js";
+import bullmqRedis from "../config/bullmqRedis";
+import { prisma } from "../lib/prisma";
+import { sendPushNotification } from "../utils/fcm";
+import type { NotificationJobData } from "../queues/notificationQueue";
 
 export function startNotificationWorker() {
   const worker = new Worker<NotificationJobData>(
@@ -17,7 +17,9 @@ export function startNotificationWorker() {
       });
 
       if (!user?.fcmToken) {
-        console.warn(`[NotificationWorker] No FCM token for user ${userId}. Skipping.`);
+        console.warn(
+          `[NotificationWorker] No FCM token for user ${userId}. Skipping.`,
+        );
         // Mark as FAILED in DB but don't throw — no point retrying without a token
         await prisma.notification.update({
           where: { id: notificationId },
@@ -38,12 +40,14 @@ export function startNotificationWorker() {
         },
       });
 
-      console.log(`[NotificationWorker] Notification ${notificationId} sent to user ${userId}`);
+      console.log(
+        `[NotificationWorker] Notification ${notificationId} sent to user ${userId}`,
+      );
     },
     {
       connection: bullmqRedis,
       concurrency: 5,
-    }
+    },
   );
 
   worker.on("failed", async (job, err) => {

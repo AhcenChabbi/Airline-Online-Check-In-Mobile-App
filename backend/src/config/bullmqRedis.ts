@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { REDIS_URL } from "./env.js";
+import { REDIS_URL } from "./env";
 
 const bullmqRedis = new Redis(REDIS_URL, {
   maxRetriesPerRequest: null, // Required by BullMQ

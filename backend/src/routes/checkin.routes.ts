@@ -1,6 +1,6 @@
-import { requireAuth } from './../middleware/auth';
+import { requireAuth } from "./../middleware/auth";
 import { Router } from "express";
-import * as CheckInController from "../controllers/checkin.controller.js";
+import * as CheckInController from "../controllers/checkin.controller";
 
 const router = Router();
 
@@ -13,9 +13,15 @@ router.post("/:checkinId/details/confirm", CheckInController.confirmDetails);
 router.get("/:checkinId/seats", CheckInController.getSeatMap);
 router.post("/:checkinId/seats/select", CheckInController.selectSeat);
 router.post("/:checkinId/baggage", CheckInController.declareBaggage);
-router.post("/:checkinId/special-requests", CheckInController.submitSpecialRequests);
+router.post(
+  "/:checkinId/special-requests",
+  CheckInController.submitSpecialRequests,
+);
 router.post("/:checkinId/confirm", CheckInController.confirmCheckIn);
 router.get("/:checkinId/boarding-pass", CheckInController.getBoardingPass);
-router.get("/:checkinId/boarding-pass/pdf", CheckInController.downloadBoardingPassPdf);
+router.get(
+  "/:checkinId/boarding-pass/pdf",
+  CheckInController.downloadBoardingPassPdf,
+);
 
 export default router;

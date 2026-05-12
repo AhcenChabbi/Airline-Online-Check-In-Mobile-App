@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/auth.js";
-import { registerFcmToken } from "../controllers/user.controller.js";
+import { requireAuth } from "../middleware/auth";
+import { registerFcmToken } from "../controllers/user.controller";
 
 const router = Router();
 

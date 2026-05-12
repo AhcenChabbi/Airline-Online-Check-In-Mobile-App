@@ -1,16 +1,16 @@
 import type { NextFunction, Request, Response } from "express";
-import  catchErrors  from "../utils/catchErrors.js";
-import * as HTTP_STATUS from "../constants/http.js";
-import * as CheckInService from "../services/checkin.service.js";
+import catchErrors from "../utils/catchErrors";
+import * as HTTP_STATUS from "../constants/http";
+import * as CheckInService from "../services/checkin.service";
 import {
   initiateCheckInSchema,
   passportScanSchema,
   seatSelectionSchema,
   baggageSchema,
   specialRequestsSchema,
-} from "../schemas/checkin.schema.js";
-import AppError from "../utils/AppError.js";
-import { generateBoardingPassPdfBuffer } from "../utils/assets.js";
+} from "../schemas/checkin.schema";
+import AppError from "../utils/AppError";
+import { generateBoardingPassPdfBuffer } from "../utils/assets";
 
 export const initiateCheckIn = catchErrors(
   async (req: Request, res: Response) => {

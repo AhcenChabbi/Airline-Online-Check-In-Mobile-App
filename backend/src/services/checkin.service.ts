@@ -1,19 +1,16 @@
-import { prisma } from "../lib/prisma.js";
-import AppError from "../utils/AppError.js";
-import * as HTTP_STATUS from "../constants/http.js";
-import { generateBoardingPassToken } from "../utils/boardingPass.js";
-import {
-  generateAndUploadQRCode,
-  generateBoardingPassPdfBuffer,
-} from "../utils/assets.js";
-import { enqueueNotification } from "../queues/notificationQueue.js";
+import { prisma } from "../lib/prisma";
+import AppError from "../utils/AppError";
+import * as HTTP_STATUS from "../constants/http";
+import { generateBoardingPassToken } from "../utils/boardingPass";
+import { generateAndUploadQRCode } from "../utils/assets";
+import { enqueueNotification } from "../queues/notificationQueue";
 
 import type {
   PassportScanInput,
   SeatSelectionInput,
   BaggageInput,
   SpecialRequestsInput,
-} from "../schemas/checkin.schema.js";
+} from "../schemas/checkin.schema";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 

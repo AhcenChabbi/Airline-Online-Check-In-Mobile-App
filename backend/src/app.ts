@@ -4,7 +4,6 @@ import { OK } from "./constants/http";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import rateLimiter from "express-rate-limit";
 import errHandler from "./middleware/errHandler";
 import authRoutes from "./routes/auth.routes";
 import usersRoutes from "./routes/users.routes";
@@ -13,9 +12,9 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 import { NODE_ENV } from "./config/env";
 import { requireAuth } from "./middleware/auth";
-import checkinRoutes from "./routes/checkin.routes.js";
+import checkinRoutes from "./routes/checkin.routes";
 import { apiLimiter } from "./middleware/rateLimiter";
-import { bullBoardServerAdapter } from "./config/bullBoard.js";
+import { bullBoardServerAdapter } from "./config/bullBoard";
 
 const app = express();
 
@@ -33,7 +32,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/bookings", requireAuth, bookingRoutes);
 app.use("/api/checkin", checkinRoutes);
-
 
 if (NODE_ENV === "development") {
   app.use("/admin/queues", bullBoardServerAdapter.getRouter());
