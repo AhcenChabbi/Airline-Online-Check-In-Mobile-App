@@ -2,14 +2,15 @@ import { prisma } from "../lib/prisma";
 import AppError from "../utils/AppError";
 import * as HTTP_STATUS from "../constants/http";
 import { generateBoardingPassToken } from "../utils/boardingPass";
-import { generateAndUploadQRCode } from "../utils/assets.js";
+import { generateAndUploadQRCode } from "../utils/assets";
+import { enqueueNotification } from "../queues/notificationQueue";
 
 import type {
   PassportScanInput,
   SeatSelectionInput,
   BaggageInput,
   SpecialRequestsInput,
-} from "../schemas/checkin.schema.js";
+} from "../schemas/checkin.schema";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -353,55 +354,70 @@ export async function confirmCheckIn(checkinId: string) {
   // const pdfUrl = await generateAndUploadPDF(offlinePayload, checkinId, qrCodeUrl);
 
   // 3. Database Transaction
-  const boardingPass = await prisma.$transaction(async (tx) => {
-    const bp = await tx.boardingPass.create({
-      data: {
-        checkinId,
-        passengerId: passenger.id,
-        seatId: seat.id,
-        qrCodeData,
-        qrCodeUrl, // <-- Added
-        // pdfUrl,
-        expiresAt,
-        offlinePayload,
-      },
-    });
-
-    // Update CheckIn Status
-    await tx.checkIn.update({
-      where: { id: checkinId },
-      data: {
-        status: "COMPLETED",
-        completedAt: new Date(),
-      },
-    });
-
-    // Update Booking Status
-    await tx.booking.update({
-      where: { id: checkin.bookingId },
-      data: { status: "CHECKED_IN" },
-    });
-
-    // 4. Create Notification (Only if the booking is linked to a User)
-    if (checkin.booking.userId) {
-      await tx.notification.create({
+  const { boardingPass, notificationRecord } = await prisma.$transaction(
+    async (tx) => {
+      const bp = await tx.boardingPass.create({
         data: {
-          userId: checkin.booking.userId,
-          bookingId: checkin.booking.id,
-          type: "CHECKIN_CONFIRMED",
-          channel: "PUSH",
-          status: "PENDING", // Ready to be picked up by a background worker
-          payload: {
-            title: "Check-in Complete! ✈️",
-            body: `Your boarding pass for flight ${flight.flightNumber} to ${flight.destIata} is ready.`,
-            deep_link: `app://boarding-pass/${bp.id}`, // For mobile app routing
-          },
+          checkinId,
+          passengerId: passenger.id,
+          seatId: seat.id,
+          qrCodeData,
+          qrCodeUrl, // <-- Added
+          // pdfUrl,
+          expiresAt,
+          offlinePayload,
         },
       });
-    }
 
-    return bp;
-  });
+      // Update CheckIn Status
+      await tx.checkIn.update({
+        where: { id: checkinId },
+        data: {
+          status: "COMPLETED",
+          completedAt: new Date(),
+        },
+      });
+
+      // Update Booking Status
+      await tx.booking.update({
+        where: { id: checkin.bookingId },
+        data: { status: "CHECKED_IN" },
+      });
+
+      // 4. Create Notification (Only if the booking is linked to a User)
+      let notificationRecord = null;
+      if (checkin.booking.userId) {
+        notificationRecord = await tx.notification.create({
+          data: {
+            userId: checkin.booking.userId,
+            bookingId: checkin.booking.id,
+            type: "CHECKIN_CONFIRMED",
+            channel: "PUSH",
+            status: "PENDING",
+            payload: {
+              title: "Check-in Complete! ✈️",
+              body: `Your boarding pass for flight ${flight.flightNumber} to ${flight.destIata} is ready.`,
+              deep_link: `app://boarding-pass/${bp.id}`,
+            },
+          },
+        });
+      }
+
+      return { boardingPass: bp, notificationRecord };
+    },
+  );
+
+  if (notificationRecord && checkin.booking.userId) {
+    await enqueueNotification({
+      notificationId: notificationRecord.id,
+      userId: checkin.booking.userId,
+      payload: notificationRecord.payload as {
+        title: string;
+        body: string;
+        deep_link?: string;
+      },
+    });
+  }
 
   return boardingPass;
 }

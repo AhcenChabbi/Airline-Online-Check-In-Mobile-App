@@ -18,4 +18,8 @@ export const userMeResponseSchema = z
   })
   .openapi("UserMeResponse");
 
+  export const registerFcmTokenSchema = z.object({
+  fcmToken: z.string().min(1, "FCM token is required"),
+}).openapi("RegisterFcmTokenInput");
+
 export default userSchema;

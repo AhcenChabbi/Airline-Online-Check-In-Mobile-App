@@ -22,6 +22,7 @@ model User {
   fullName     String   @map("full_name")
   email        String   @unique
   phone        String?
+  fcmToken     String?  @map("fcm_token") // for push notifications
   passwordHash String?  @map("password_hash") // null for Google OAuth users
   googleId     String?  @unique @map("google_id")
   avatarUrl    String?  @map("avatar_url")

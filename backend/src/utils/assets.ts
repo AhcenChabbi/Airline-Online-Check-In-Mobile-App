@@ -1,9 +1,13 @@
 import { v2 as cloudinary } from "cloudinary";
 import QRCode from "qrcode";
 import PDFDocument from "pdfkit";
-import AppError from "./AppError.js";
-import * as HTTP_STATUS from "../constants/http.js";
-import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY } from './../config/env';
+import AppError from "./AppError";
+import * as HTTP_STATUS from "../constants/http";
+import {
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_SECRET,
+  CLOUDINARY_API_KEY,
+} from "./../config/env";
 import axios from "axios";
 
 // Configure Cloudinary
@@ -47,7 +51,7 @@ export async function generateAndUploadQRCode(
  */
 export async function generateBoardingPassPdfBuffer(
   offlinePayload: any,
-  qrCodeUrl: string
+  qrCodeUrl: string,
 ): Promise<Buffer> {
   const response = await axios.get(qrCodeUrl, { responseType: "arraybuffer" });
   const qrBuffer = Buffer.from(response.data);
@@ -60,31 +64,48 @@ export async function generateBoardingPassPdfBuffer(
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    doc.fontSize(24).font("Helvetica-Bold").text("BOARDING PASS", { align: "center" });
+    doc
+      .fontSize(24)
+      .font("Helvetica-Bold")
+      .text("BOARDING PASS", { align: "center" });
     doc.moveDown();
     doc.image(qrBuffer, { fit: [150, 150], align: "center" });
     doc.moveDown(10);
 
     doc.fontSize(14).font("Helvetica-Bold").text("PASSENGER DETAILS");
-    doc.fontSize(12).font("Helvetica")
-      .text(`Name: ${offlinePayload.passenger.firstName} ${offlinePayload.passenger.lastName}`)
+    doc
+      .fontSize(12)
+      .font("Helvetica")
+      .text(
+        `Name: ${offlinePayload.passenger.firstName} ${offlinePayload.passenger.lastName}`,
+      )
       .text(`Passport: ${offlinePayload.passenger.passportNumber}`);
     doc.moveDown();
 
     doc.fontSize(14).font("Helvetica-Bold").text("FLIGHT DETAILS");
-    doc.fontSize(12).font("Helvetica")
+    doc
+      .fontSize(12)
+      .font("Helvetica")
       .text(`Flight Number: ${offlinePayload.flight.flightNumber}`)
-      .text(`Route: ${offlinePayload.flight.origin} to ${offlinePayload.flight.destination}`)
-      .text(`Departure: ${new Date(offlinePayload.flight.departureAt).toLocaleString()}`);
+      .text(
+        `Route: ${offlinePayload.flight.origin} to ${offlinePayload.flight.destination}`,
+      )
+      .text(
+        `Departure: ${new Date(offlinePayload.flight.departureAt).toLocaleString()}`,
+      );
     doc.moveDown();
 
     doc.fontSize(14).font("Helvetica-Bold").text("SEAT & BOARDING");
-    doc.fontSize(12).font("Helvetica")
+    doc
+      .fontSize(12)
+      .font("Helvetica")
       .text(`Seat: ${offlinePayload.seat.seatCode}`)
       .text(`Class: ${offlinePayload.seat.class}`);
     doc.moveDown(3);
 
-    doc.fontSize(10).font("Helvetica-Oblique")
+    doc
+      .fontSize(10)
+      .font("Helvetica-Oblique")
       .text("Please present this document at the gate.", { align: "center" });
 
     doc.end();

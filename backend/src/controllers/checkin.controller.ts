@@ -8,9 +8,9 @@ import {
   seatSelectionSchema,
   baggageSchema,
   specialRequestsSchema,
-} from "../schemas/checkin.schema.js";
-import AppError from "../utils/AppError.js";
-import { generateBoardingPassPdfBuffer } from "../utils/assets.js";
+} from "../schemas/checkin.schema";
+import AppError from "../utils/AppError";
+import { generateBoardingPassPdfBuffer } from "../utils/assets";
 
 export const initiateCheckIn = catchErrors(
   async (req: Request, res: Response) => {

@@ -3,3 +3,6 @@ node_modules
 .env
 
 /generated
+
+# Firebase secret key
+firebase-service-account.json
