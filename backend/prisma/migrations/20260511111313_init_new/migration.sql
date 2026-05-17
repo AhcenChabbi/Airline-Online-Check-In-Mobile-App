@@ -5,6 +5,9 @@ CREATE TYPE "FlightStatus" AS ENUM ('SCHEDULED', 'BOARDING', 'DEPARTED', 'ARRIVE
 CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CHECKIN_OPEN', 'CHECKED_IN', 'CANCELLED');
 
 -- CreateEnum
+CREATE TYPE "PassengerType" AS ENUM ('ADULT', 'CHILD', 'INFANT');
+
+-- CreateEnum
 CREATE TYPE "CheckInStatus" AS ENUM ('INITIATED', 'IN_PROGRESS', 'COMPLETED', 'ABANDONED', 'EXPIRED');
 
 -- CreateEnum
@@ -40,6 +43,7 @@ CREATE TABLE "users" (
     "full_name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT,
+    "fcm_token" TEXT,
     "password_hash" TEXT,
     "google_id" TEXT,
     "avatar_url" TEXT,
@@ -87,6 +91,7 @@ CREATE TABLE "passengers" (
     "booking_id" TEXT NOT NULL,
     "first_name" TEXT NOT NULL,
     "last_name" TEXT NOT NULL,
+    "passenger_type" "PassengerType" NOT NULL DEFAULT 'ADULT',
     "date_of_birth" DATE NOT NULL,
     "nationality" TEXT NOT NULL,
     "passport_number" TEXT,
@@ -122,7 +127,6 @@ CREATE TABLE "seats" (
     "column_letter" TEXT NOT NULL,
     "class" "SeatClass" NOT NULL DEFAULT 'ECONOMY',
     "type" "SeatType" NOT NULL DEFAULT 'STANDARD',
-    "is_available" BOOLEAN NOT NULL DEFAULT true,
     "reserved_by_checkin_id" TEXT,
     "reserved_at" TIMESTAMP(3),
 
@@ -165,6 +169,7 @@ CREATE TABLE "boarding_passes" (
     "qr_code_url" TEXT,
     "pdf_url" TEXT,
     "is_synced" BOOLEAN NOT NULL DEFAULT false,
+    "synced_at" TIMESTAMP(3),
     "issued_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "expires_at" TIMESTAMP(3) NOT NULL,
     "offline_payload" JSONB NOT NULL,
@@ -200,10 +205,10 @@ CREATE UNIQUE INDEX "flights_flight_number_key" ON "flights"("flight_number");
 CREATE UNIQUE INDEX "bookings_booking_reference_key" ON "bookings"("booking_reference");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "passengers_booking_id_passport_number_key" ON "passengers"("booking_id", "passport_number");
+CREATE INDEX "bookings_booking_reference_last_name_idx" ON "bookings"("booking_reference", "last_name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "check_ins_booking_id_key" ON "check_ins"("booking_id");
+CREATE UNIQUE INDEX "passengers_booking_id_passport_number_key" ON "passengers"("booking_id", "passport_number");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "check_ins_passenger_id_key" ON "check_ins"("passenger_id");

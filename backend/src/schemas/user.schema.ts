@@ -8,8 +8,18 @@ const userSchema = z.object({
   phone: z.string().nullable(),
   googleId: z.string().nullable(),
   avatarUrl: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
+
+export const userMeResponseSchema = z
+  .object({
+    user: userSchema,
+  })
+  .openapi("UserMeResponse");
+
+  export const registerFcmTokenSchema = z.object({
+  fcmToken: z.string().min(1, "FCM token is required"),
+}).openapi("RegisterFcmTokenInput");
 
 export default userSchema;

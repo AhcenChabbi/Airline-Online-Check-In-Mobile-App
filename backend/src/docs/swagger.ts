@@ -9,9 +9,24 @@ import {
   refreshTokenSchema,
   authResponseSchema,
 } from "../schemas/auth.schema";
-import { z } from "zod";
 import { PORT } from "../config/env";
-import userSchema from "../schemas/user.schema";
+import userSchema, {
+  userMeResponseSchema,
+  registerFcmTokenSchema,
+} from "../schemas/user.schema";
+import { healthResponseSchema } from "../schemas/common.schema";
+import {
+  bookingLookupResponseSchema,
+  lookupSchema,
+} from "../schemas/booking.schema";
+import {
+  initiateCheckInSchema,
+  passportScanSchema,
+  seatSelectionSchema,
+  baggageSchema,
+  specialRequestsSchema,
+} from "../schemas/checkin.schema";
+import { z } from "zod";
 
 const registry = new OpenAPIRegistry();
 registry.register("RegisterInput", registerSchema);
@@ -21,6 +36,32 @@ registry.register("RefreshTokenInput", refreshTokenSchema);
 
 registry.register("User", userSchema);
 registry.register("AuthResponse", authResponseSchema);
+registry.register("UserMeResponse", userMeResponseSchema);
+registry.register("HealthResponse", healthResponseSchema);
+registry.register("BookingLookupResponse", bookingLookupResponseSchema);
+registry.register("LookupInput", lookupSchema);
+registry.register("InitiateCheckInInput", initiateCheckInSchema);
+registry.register("PassportScanInput", passportScanSchema);
+registry.register("SeatSelectionInput", seatSelectionSchema);
+registry.register("BaggageInput", baggageSchema);
+registry.register("SpecialRequestsInput", specialRequestsSchema);
+registry.register("RegisterFcmTokenInput", registerFcmTokenSchema);
+
+registry.registerPath({
+  method: "get",
+  path: "/health",
+  tags: ["Health"],
+  responses: {
+    200: {
+      description: "Service health check",
+      content: {
+        "application/json": {
+          schema: healthResponseSchema,
+        },
+      },
+    },
+  },
+});
 
 registry.registerPath({
   method: "post",
@@ -140,10 +181,212 @@ registry.registerPath({
       description: "Current user",
       content: {
         "application/json": {
-          schema: z.object({ user: userSchema }),
+          schema: userMeResponseSchema,
         },
       },
     },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/bookings/lookup",
+  tags: ["Bookings"],
+  request: {
+    body: {
+      description: "Lookup a booking by reference and last name",
+      required: true,
+      content: {
+        "application/json": {
+          schema: lookupSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Booking lookup result",
+      content: {
+        "application/json": {
+          schema: bookingLookupResponseSchema,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/initiate",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: initiateCheckInSchema } },
+    },
+  },
+  responses: {
+    201: { description: "Check-in initiated, returns checkin record" },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/{checkinId}/passport",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: passportScanSchema } },
+    },
+  },
+  responses: {
+    200: { description: "Passport submitted, step advanced to DETAILS_REVIEW" },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/{checkinId}/details/confirm",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+  },
+  responses: {
+    200: { description: "Details confirmed, step advanced to SEAT_SELECTION" },
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/api/checkin/{checkinId}/seats",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+  },
+  responses: {
+    200: { description: "Seat map for the flight" },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/{checkinId}/seats/select",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: seatSelectionSchema } },
+    },
+  },
+  responses: {
+    200: { description: "Seat reserved, step advanced to BAGGAGE_DECLARATION" },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/{checkinId}/baggage",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: baggageSchema } },
+    },
+  },
+  responses: {
+    200: { description: "Baggage declared, step advanced to SPECIAL_REQUESTS" },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/{checkinId}/special-requests",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: specialRequestsSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Special requests saved, step advanced to CONFIRMATION",
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/checkin/{checkinId}/confirm",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+  },
+  responses: {
+    201: { description: "Check-in completed, boarding pass issued" },
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/api/checkin/{checkinId}/boarding-pass",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+  },
+  responses: {
+    200: {
+      description:
+        "Boarding pass data including offline payload and QR code URL",
+    },
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/api/checkin/{checkinId}/boarding-pass/pdf",
+  tags: ["Check-In"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ checkinId: z.string().uuid() }),
+  },
+  responses: {
+    200: {
+      description: "PDF boarding pass download",
+      content: {
+        "application/pdf": { schema: { type: "string", format: "binary" } },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/users/fcm-token",
+  tags: ["Users"],
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: registerFcmTokenSchema } },
+    },
+  },
+  responses: {
+    200: { description: "FCM token registered successfully" },
   },
 });
 
