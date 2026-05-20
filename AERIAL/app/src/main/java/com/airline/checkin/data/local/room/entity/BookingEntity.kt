@@ -7,10 +7,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 enum class BookingStatus {
-    PENDING,
-    CHECKIN_OPEN,
-    CHECKED_IN,
-    CANCELLED
+        PENDING,
+        CHECKIN_OPEN,
+        CHECKED_IN,
+        CANCELLED
 }
 
 @Entity(
@@ -28,6 +28,7 @@ enum class BookingStatus {
 )
 data class BookingEntity(
         @PrimaryKey @ColumnInfo(name = "id") val id: String,
+        @ColumnInfo(name = "user_id") val userId: String? = null,
         @ColumnInfo(name = "flight_id") val flightId: String,
         @ColumnInfo(name = "booking_reference") val bookingReference: String,
         @ColumnInfo(name = "last_name") val lastName: String,

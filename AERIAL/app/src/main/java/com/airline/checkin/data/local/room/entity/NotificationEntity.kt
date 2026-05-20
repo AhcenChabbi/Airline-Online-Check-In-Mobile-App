@@ -7,20 +7,20 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 enum class NotificationType {
-    CHECKIN_CONFIRMED,
-    BOARDING_PASS_READY,
-    GATE_CHANGE,
-    FLIGHT_DELAY,
-    FLIGHT_CANCELLED,
-    REMINDER
+        CHECKIN_CONFIRMED,
+        BOARDING_PASS_READY,
+        GATE_CHANGE,
+        FLIGHT_DELAY,
+        FLIGHT_CANCELLED,
+        REMINDER
 }
 
 enum class NotificationStatus {
-    PENDING,
-    SENT,
-    DELIVERED,
-    READ,
-    FAILED
+        PENDING,
+        SENT,
+        DELIVERED,
+        READ,
+        FAILED
 }
 
 @Entity(
@@ -37,6 +37,7 @@ enum class NotificationStatus {
 )
 data class NotificationEntity(
         @PrimaryKey @ColumnInfo(name = "id") val id: String,
+        @ColumnInfo(name = "user_id") val userId: String,
         @ColumnInfo(name = "booking_id") val bookingId: String,
         @ColumnInfo(name = "type") val type: NotificationType,
         @ColumnInfo(name = "status") val status: NotificationStatus = NotificationStatus.PENDING,

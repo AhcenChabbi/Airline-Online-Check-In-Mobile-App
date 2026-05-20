@@ -32,10 +32,10 @@ import com.airline.checkin.data.local.room.entity.SeatEntity
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun flightDao(): FlightDao
-    abstract fun bookingDao(): BookingDao
-    abstract fun passengerDao(): PassengerDao
-    abstract fun seatDao(): SeatDao
-    abstract fun boardingPassDao(): BoardingPassDao
-    abstract fun notificationDao(): NotificationDao
+        abstract fun flightDao(): FlightDao
+        abstract fun bookingDao(): BookingDao
+        abstract fun passengerDao(): PassengerDao
+        abstract fun seatDao(): SeatDao
+        abstract fun boardingPassDao(): BoardingPassDao
+        abstract fun notificationDao(): NotificationDao
 }

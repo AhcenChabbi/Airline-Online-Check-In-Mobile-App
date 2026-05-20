@@ -9,12 +9,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -25,27 +25,33 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
-        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+            HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+
+    @Provides 
+    @Singleton 
+    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-        authInterceptor: AuthInterceptor
-    ): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(authInterceptor)
-        .addInterceptor(loggingInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .build()
+            loggingInterceptor: HttpLoggingInterceptor,
+            authInterceptor: AuthInterceptor
+    ): OkHttpClient =
+            OkHttpClient.Builder()
+                    .addInterceptor(authInterceptor)
+                    .addInterceptor(loggingInterceptor)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build()
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
+            Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .client(okHttpClient)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
 
     @Provides
     @Singleton
@@ -62,5 +68,23 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideBoardingPassApi(retrofit: Retrofit): BoardingPassApi =
-        retrofit.create(BoardingPassApi::class.java)
+            retrofit.create(BoardingPassApi::class.java)
 }
+
+/*
+
+Ton app appelle authApi.login()
+        ↓
+AuthInterceptor         → ajoute "Authorization: Bearer token123" à la lettre
+        ↓
+HttpLoggingInterceptor  → affiche la lettre dans Logcat (pour déboguer)
+        ↓
+OkHttpClient            → envoie la lettre au serveur
+        ↓
+Serveur répond
+        ↓
+HttpLoggingInterceptor  → affiche la réponse dans Logcat
+        ↓
+Ton app reçoit le résultat 
+
+*/

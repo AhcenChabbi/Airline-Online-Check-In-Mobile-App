@@ -30,6 +30,7 @@ import androidx.room.PrimaryKey
 )
 data class BoardingPassEntity(
         @PrimaryKey @ColumnInfo(name = "id") val id: String,
+        @ColumnInfo(name = "checkin_id") val checkinId: String,
         @ColumnInfo(name = "passenger_id") val passengerId: String,
         @ColumnInfo(name = "seat_id") val seatId: String,
         @ColumnInfo(name = "qr_code_data") val qrCodeData: String,
@@ -43,4 +44,3 @@ data class BoardingPassEntity(
         @ColumnInfo(name = "is_synced") val isSynced: Boolean = false,
         @ColumnInfo(name = "synced_at") val syncedAt: Long? = null
 )
- 
