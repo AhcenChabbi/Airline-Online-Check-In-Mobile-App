@@ -54,6 +54,7 @@ const passengerSummarySchema = z.object({
 
 export const bookingLookupResponseSchema = z
   .object({
+    bookingId: z.string().uuid(),
     bookingReference: z.string(),
     status: z.enum(["PENDING", "CHECKIN_OPEN", "CHECKED_IN", "CANCELLED"]),
     isCheckinOpen: z.boolean(),

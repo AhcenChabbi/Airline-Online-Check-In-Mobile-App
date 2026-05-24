@@ -40,6 +40,7 @@ export const lookupBooking = async (data: LookupInput) => {
   const isCheckinOpen = diffHours <= 24 && diffHours > 0;
 
   return {
+    bookingId: booking.id,
     bookingReference: booking.bookingReference,
     status: booking.status,
     isCheckinOpen,
