@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PassengerDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun save(passenger: PassengerEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun save(passenger: PassengerEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveAll(passengers: List<PassengerEntity>)
+    suspend fun saveAll(passengers: List<PassengerEntity>): List<Long>
 
     @Query("SELECT * FROM passengers WHERE id = :id") fun get(id: String): Flow<PassengerEntity?>
 
@@ -24,5 +25,5 @@ interface PassengerDao {
     suspend fun getPrimary(bookingId: String): PassengerEntity?
 
     @Query("DELETE FROM passengers WHERE booking_id = :bookingId")
-    suspend fun deleteByBooking(bookingId: String)
+    suspend fun deleteByBooking(bookingId: String): Int
 }

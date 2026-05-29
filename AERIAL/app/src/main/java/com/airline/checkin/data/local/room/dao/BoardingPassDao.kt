@@ -22,7 +22,7 @@ data class BoardingPassWithDetails(
 interface BoardingPassDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun save(boardingPass: BoardingPassEntity)
+    suspend fun save(boardingPass: BoardingPassEntity): Long
 
     @Query("SELECT * FROM boarding_passes WHERE passenger_id = :passengerId LIMIT 1")
     fun getByPassenger(passengerId: String): Flow<BoardingPassEntity?>
@@ -35,14 +35,14 @@ interface BoardingPassDao {
     suspend fun getUnsynced(): List<BoardingPassEntity>
  
     @Query("UPDATE boarding_passes SET is_synced = 1, synced_at = :at WHERE id = :id")
-    suspend fun markSynced(id: String, at: Long = System.currentTimeMillis())
+    suspend fun markSynced(id: String, at: Long): Int
 
     @Query("UPDATE boarding_passes SET qr_code_url = :url WHERE id = :id")
-    suspend fun updateQrUrl(id: String, url: String)
+    suspend fun updateQrUrl(id: String, url: String): Int
 
     @Query("UPDATE boarding_passes SET pdf_url = :url WHERE id = :id")
-    suspend fun updatePdfUrl(id: String, url: String)
+    suspend fun updatePdfUrl(id: String, url: String): Int
 
     @Query("DELETE FROM boarding_passes WHERE expires_at < :now")
-    suspend fun deleteExpired(now: Long = System.currentTimeMillis())
+    suspend fun deleteExpired(now: Long): Int
 }

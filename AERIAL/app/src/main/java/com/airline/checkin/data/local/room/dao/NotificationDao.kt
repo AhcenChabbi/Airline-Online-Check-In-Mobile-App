@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 interface NotificationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun save(notification: NotificationEntity)
+    suspend fun save(notification: NotificationEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveAll(notifications: List<NotificationEntity>)
+    suspend fun saveAll(notifications: List<NotificationEntity>): List<Long>
 
     @Query("SELECT * FROM notifications WHERE booking_id = :bookingId ORDER BY received_at DESC")
     fun getByBooking(bookingId: String): Flow<List<NotificationEntity>>
@@ -22,11 +22,12 @@ interface NotificationDao {
     @Query("SELECT COUNT(*) FROM notifications WHERE booking_id = :bookingId AND is_read = 0")
     fun getUnreadCount(bookingId: String): Flow<Int>
 
-    @Query("UPDATE notifications SET is_read = 1 WHERE id = :id") suspend fun markRead(id: String)
+    @Query("UPDATE notifications SET is_read = 1 WHERE id = :id")
+    suspend fun markRead(id: String): Int
 
     @Query("UPDATE notifications SET is_read = 1 WHERE booking_id = :bookingId")
-    suspend fun markAllRead(bookingId: String)
+    suspend fun markAllRead(bookingId: String): Int
 
     @Query("DELETE FROM notifications WHERE booking_id = :bookingId")
-    suspend fun deleteByBooking(bookingId: String)
+    suspend fun deleteByBooking(bookingId: String): Int
 }
