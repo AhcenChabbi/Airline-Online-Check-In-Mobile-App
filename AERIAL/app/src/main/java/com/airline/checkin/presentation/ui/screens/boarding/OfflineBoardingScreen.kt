@@ -12,9 +12,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun OfflineBoardingScreen(onBack: () -> Unit) {
+fun OfflineBoardingScreen(
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val boardingPass = uiState.boardingPass
+    val passengerName = listOf(
+        boardingPass?.offlinePayload?.passenger?.firstName,
+        boardingPass?.offlinePayload?.passenger?.lastName
+    ).filter { !it.isNullOrBlank() }.joinToString(" ").ifBlank {
+        uiState.passenger?.name.orEmpty()
+    }
+    val flightNumber = boardingPass?.offlinePayload?.flight?.flightNumber ?: uiState.flight?.flightNumber.orEmpty()
+    val from = boardingPass?.offlinePayload?.flight?.origin ?: uiState.flight?.originIata.orEmpty()
+    val to = boardingPass?.offlinePayload?.flight?.destination ?: uiState.flight?.destinationIata.orEmpty()
+    val date = uiState.flight?.date.orEmpty()
+    val boardingTime = uiState.flight?.departureTime.orEmpty()
+    val seatCode = boardingPass?.offlinePayload?.seat?.seatCode ?: uiState.selectedSeat?.seatCode.orEmpty()
+    val bookingRef = uiState.bookingReference.ifBlank { uiState.checkIn?.bookingId.orEmpty() }
     Scaffold(
         topBar = {
             AirlineTopBar(
@@ -58,18 +79,18 @@ fun OfflineBoardingScreen(onBack: () -> Unit) {
 
                 // 2. The Boarding Pass Card
                 BoardingPassCard(
-                    passengerName = "Alex Mercer",
-                    flightNumber = "AF1234",
-                    from = "CDG",
-                    fromCity = "Paris",
-                    to = "ALG",
-                    toCity = "Algiers",
-                    date = "24 Oct 2023",
-                    gate = "B14",
-                    seat = "12A",
-                    boardingTime = "10:00 AM",
-                    bookingRef = "A8X9B2",
-                    qrCodeData = "JWT_OFFLINE_PAYLOAD_TOKEN"
+                    passengerName = passengerName,
+                    flightNumber = flightNumber,
+                    from = from,
+                    fromCity = uiState.flight?.originCity.orEmpty(),
+                    to = to,
+                    toCity = uiState.flight?.destinationCity.orEmpty(),
+                    date = date,
+                    gate = uiState.flight?.gate.orEmpty(),
+                    seat = seatCode,
+                    boardingTime = boardingTime,
+                    bookingRef = bookingRef,
+                    qrCodeData = boardingPass?.qrCodeData.orEmpty()
                 )
 
                 Spacer(modifier = Modifier.height(Spacing.xxl))

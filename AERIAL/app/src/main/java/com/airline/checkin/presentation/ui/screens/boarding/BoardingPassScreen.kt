@@ -19,9 +19,42 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.BoardingPassViewModel
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-fun BoardingPassScreen(onBack: () -> Unit) {
+fun BoardingPassScreen(
+    onBack: () -> Unit,
+    viewModel: BoardingPassViewModel = hiltViewModel(),
+    checkInViewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkInState by checkInViewModel.uiState.collectAsStateWithLifecycle()
+    val checkInId = checkInState.checkIn?.id
+
+    LaunchedEffect(checkInId) {
+        if (checkInId != null) {
+            viewModel.loadBoardingPass(checkInId)
+        }
+    }
+
+    val boardingPass = uiState.boardingPass
+    val passengerName = listOf(
+        boardingPass?.offlinePayload?.passenger?.firstName,
+        boardingPass?.offlinePayload?.passenger?.lastName
+    ).filter { !it.isNullOrBlank() }.joinToString(" ").ifBlank {
+        checkInState.passenger?.name.orEmpty()
+    }
+    val flightNumber = boardingPass?.offlinePayload?.flight?.flightNumber ?: checkInState.flight?.flightNumber.orEmpty()
+    val from = boardingPass?.offlinePayload?.flight?.origin ?: checkInState.flight?.originIata.orEmpty()
+    val to = boardingPass?.offlinePayload?.flight?.destination ?: checkInState.flight?.destinationIata.orEmpty()
+    val date = checkInState.flight?.date.orEmpty()
+    val boardingTime = checkInState.flight?.departureTime.orEmpty()
+    val seatCode = boardingPass?.offlinePayload?.seat?.seatCode ?: checkInState.selectedSeat?.seatCode.orEmpty()
+    val bookingRef = checkInState.bookingReference.ifBlank { checkInState.checkIn?.bookingId.orEmpty() }
     Scaffold(
         topBar = {
             AirlineTopBar(
@@ -60,18 +93,18 @@ fun BoardingPassScreen(onBack: () -> Unit) {
 
             // 2. The Boarding Pass Card
             BoardingPassCard(
-                passengerName = "Alex Mercer",
-                flightNumber = "AF1234",
-                from = "CDG",
-                fromCity = "Paris",
-                to = "ALG",
-                toCity = "Algiers",
-                date = "24 Oct 2023",
-                gate = "B14",
-                seat = "12A",
-                boardingTime = "10:00 AM",
-                bookingRef = "A8X9B2",
-                qrCodeData = "JWT_SIGNED_TOKEN_EXAMPLE_123"
+                passengerName = passengerName,
+                flightNumber = flightNumber,
+                from = from,
+                fromCity = checkInState.flight?.originCity.orEmpty(),
+                to = to,
+                toCity = checkInState.flight?.destinationCity.orEmpty(),
+                date = date,
+                gate = checkInState.flight?.gate.orEmpty(),
+                seat = seatCode,
+                boardingTime = boardingTime,
+                bookingRef = bookingRef,
+                qrCodeData = boardingPass?.qrCodeData.orEmpty()
             )
 
             Spacer(modifier = Modifier.height(Spacing.xl))
@@ -79,7 +112,11 @@ fun BoardingPassScreen(onBack: () -> Unit) {
             // 3. Actions
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(
-                    onClick = { /* Download PDF */ },
+                    onClick = {
+                        if (checkInId != null) {
+                            viewModel.downloadPdf(checkInId) { }
+                        }
+                    },
                     modifier = Modifier.weight(1f).height(56.dp),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)

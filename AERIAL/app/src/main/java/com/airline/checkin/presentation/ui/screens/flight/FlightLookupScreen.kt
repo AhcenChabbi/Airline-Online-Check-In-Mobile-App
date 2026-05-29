@@ -19,39 +19,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.R
-import com.airline.checkin.domain.model.Flight
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import com.airline.checkin.presentation.ui.viewmodels.FlightViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun FlightLookupScreen(
     onFlightSelected: () -> Unit,
     onLogout: () -> Unit,
-    flightResult: Flight? = null,
-    bookedPassengerName: String = "",
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    viewModel: FlightViewModel = hiltViewModel(),
+    checkInViewModel: CheckInViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var bookingRef by remember { mutableStateOf("") }
-    var lastName   by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
     var isSearchDone by remember { mutableStateOf(false) }
 
-    val previewFlight = Flight(
-        id              = "preview",
-        flightNumber    = "AF1234",
-        airlineCode     = "AF",
-        airlineName     = "Air France",
-        originIata      = "CDG",
-        originCity      = "Paris",
-        destinationIata = "ALG",
-        destinationCity = "Algiers",
-        departureTime   = "10:30 AM",
-        arrivalTime     = "12:45 PM",
-        date            = "Oct 24, 2023",
-        aircraftType    = "A320",
-        status          = "SCHEDULED"
-    )
-    val displayedFlight      = flightResult ?: previewFlight
-    val displayedPassenger   = bookedPassengerName.ifBlank { lastName }
+    val bookingLookup = uiState.bookingLookup
+    val displayedFlight = bookingLookup?.flight
+    val primaryPassenger = bookingLookup?.passengers?.firstOrNull { it.isPrimary }
+    val displayedPassenger = primaryPassenger?.name ?: lastName
 
     Scaffold(
         topBar = {
@@ -119,10 +110,11 @@ fun FlightLookupScreen(
                     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
                     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
                     SearchFlightButton(
-                        onClick = { 
+                        onClick = {
                             isSearchDone = true
                             keyboardController?.hide()
                             focusManager.clearFocus()
+                            viewModel.lookupBooking(bookingRef, lastName)
                         },
                         enabled = bookingRef.isNotBlank() && lastName.isNotBlank()
                     )
@@ -130,7 +122,7 @@ fun FlightLookupScreen(
             }
 
             // 3. Search Results or Empty State
-            if (isSearchDone || flightResult != null) {
+            if (isSearchDone || bookingLookup != null) {
                 Spacer(modifier = Modifier.height(Spacing.xxl))
 
                 Text(
@@ -142,12 +134,20 @@ fun FlightLookupScreen(
 
                 Spacer(modifier = Modifier.height(Spacing.md))
 
-                FlightResultCard(
-                    flight              = displayedFlight,
-                    bookingReference    = bookingRef,
-                    bookedPassengerName = displayedPassenger,
-                    onStartCheckIn      = onFlightSelected
-                )
+                if (displayedFlight != null && bookingLookup != null) {
+                    FlightResultCard(
+                        flight = displayedFlight,
+                        bookingReference = bookingLookup.bookingReference.ifBlank { bookingRef },
+                        bookedPassengerName = displayedPassenger,
+                        onStartCheckIn = {
+                            val passengerId = primaryPassenger?.id
+                            if (passengerId != null) {
+                                checkInViewModel.initiateCheckIn(bookingLookup.bookingId, passengerId)
+                                onFlightSelected()
+                            }
+                        }
+                    )
+                }
             } else {
                 Spacer(modifier = Modifier.height(Spacing.lg))
                 

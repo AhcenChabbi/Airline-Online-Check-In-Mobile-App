@@ -21,9 +21,27 @@ import androidx.compose.ui.unit.sp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
 import com.airline.checkin.presentation.ui.theme.Gold
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
+fun ConfirmationScreen(
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val passengerName = uiState.passenger?.name.orEmpty()
+    val flightNumber = uiState.flight?.flightNumber.orEmpty()
+    val origin = uiState.flight?.originIata.orEmpty()
+    val destination = uiState.flight?.destinationIata.orEmpty()
+    val originCity = uiState.flight?.originCity.orEmpty()
+    val destinationCity = uiState.flight?.destinationCity.orEmpty()
+    val seatCode = uiState.selectedSeat?.seatCode.orEmpty()
+    val seatType = uiState.selectedSeat?.seatType.orEmpty()
+    val baggageCount = uiState.baggage.sumOf { it.quantity }
+    val pnr = uiState.bookingReference.ifBlank { uiState.checkIn?.bookingId.orEmpty() }
     var acknowledged by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -88,14 +106,16 @@ fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
 
             // 2. Summary Card
             FinalSummaryCard(
-                passengerName = "Alex Mercer",
-                flightNumber = "AF1234",
-                origin = "JFK",
-                destination = "LHR",
-                seat = "12A",
-                seatType = "Window",
-                baggageCount = 2,
-                pnr = "A8X9B2"
+                passengerName = passengerName,
+                flightNumber = flightNumber,
+                origin = origin,
+                destination = destination,
+                originCity = originCity,
+                destinationCity = destinationCity,
+                seat = seatCode,
+                seatType = seatType,
+                baggageCount = baggageCount,
+                pnr = pnr
             )
 
             Spacer(modifier = Modifier.height(Spacing.lg))
@@ -127,7 +147,10 @@ fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             ConfirmButton(
                 text = "Complete Check-in",
                 enabled = acknowledged,
-                onClick = onContinue
+                onClick = {
+                    uiState.checkIn?.id?.let { viewModel.confirmCheckIn(it) }
+                    onContinue()
+                }
             )
             
             Spacer(modifier = Modifier.height(Spacing.md))

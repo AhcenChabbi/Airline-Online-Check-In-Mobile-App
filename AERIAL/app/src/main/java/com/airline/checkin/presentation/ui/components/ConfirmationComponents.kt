@@ -26,6 +26,8 @@ fun FinalSummaryCard(
     flightNumber: String,
     origin: String,
     destination: String,
+    originCity: String = "",
+    destinationCity: String = "",
     seat: String,
     seatType: String,
     baggageCount: Int,
@@ -53,7 +55,7 @@ fun FinalSummaryCard(
                 ) {
                     Column {
                         Text(origin, style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Black)
-                        Text("New York", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
+                        Text(originCity, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
                     }
                     
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -63,7 +65,7 @@ fun FinalSummaryCard(
 
                     Column(horizontalAlignment = Alignment.End) {
                         Text(destination, style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Black)
-                        Text("London", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
+                        Text(destinationCity, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
                     }
                 }
             }

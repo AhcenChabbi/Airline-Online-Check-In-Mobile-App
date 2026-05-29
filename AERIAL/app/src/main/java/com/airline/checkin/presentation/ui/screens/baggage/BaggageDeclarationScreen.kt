@@ -53,12 +53,22 @@ fun BaggageDeclarationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
         contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Top),
         bottomBar = {
             BaggagePriceBar(
+    import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+    import androidx.hilt.navigation.compose.hiltViewModel
+    import androidx.lifecycle.compose.collectAsStateWithLifecycle
+    import com.airline.checkin.domain.model.Baggage
                 totalPrice = totalExtra,
                 onNext = onContinue
             )
         }
     ) { innerPadding ->
-        Column(
+    fun BaggageDeclarationScreen(
+        onContinue: () -> Unit,
+        onBack: () -> Unit,
+        viewModel: CheckInViewModel = hiltViewModel()
+    ) {
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val checkInId = uiState.checkIn?.id
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -84,10 +94,22 @@ fun BaggageDeclarationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             
             // CARRY_ON
             BaggageItemCard(
-                title = "Cabin baggage",
-                subtitle = "Max 7kg (Carry-on)",
-                badgeText = "Included",
-                badgeColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
+                BaggagePriceBar(
+                    totalPrice = totalExtra,
+                    onNext = {
+                        if (checkInId != null) {
+                            val bags = buildList {
+                                if (carryOnCount > 0) add(Baggage(bagType = "CARRY_ON", quantity = carryOnCount))
+                                if (checkedCount > 0) add(Baggage(bagType = "CHECKED", quantity = checkedCount))
+                                if (oversizedCount > 0) add(Baggage(bagType = "OVERSIZED", quantity = oversizedCount))
+                                if (fragileCount > 0) add(Baggage(bagType = "FRAGILE", quantity = fragileCount))
+                                if (sportsCount > 0) add(Baggage(bagType = "SPORTS_EQUIPMENT", quantity = sportsCount))
+                            }
+                            viewModel.declareBaggage(checkInId, bags)
+                        }
+                        onContinue()
+                    }
+                )
                 badgeTextColor = MaterialTheme.colorScheme.primary,
                 count = carryOnCount,
                 onIncrement = { if (carryOnCount < 1) carryOnCount++ },

@@ -15,6 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airline.checkin.domain.model.SpecialRequest
 
 /**
  * Maps to backend SpecialRequest model:
@@ -22,7 +26,13 @@ import com.airline.checkin.presentation.ui.theme.Spacing
  * Detail: e.g. "VGML", "WCHR", "INFT", "PETC"
  */
 @Composable
-fun SpecialRequestsScreen(onContinue: () -> Unit, onBack: () -> Unit) {
+fun SpecialRequestsScreen(
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkInId = uiState.checkIn?.id
     // These states will eventually be part of a list of SpecialRequest objects
     var hasDietary by remember { mutableStateOf(false) }
     var hasAccessibility by remember { mutableStateOf(false) }
@@ -118,7 +128,18 @@ fun SpecialRequestsScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             // 3. Complete Button
             ConfirmButton(
                 text = "Complete Check-in",
-                onClick = onContinue,
+                onClick = {
+                    if (checkInId != null) {
+                        val requests = buildList {
+                            if (hasDietary) add(SpecialRequest(category = "DIETARY", detail = "VGML"))
+                            if (hasAccessibility) add(SpecialRequest(category = "ACCESSIBILITY", detail = "WCHR"))
+                            if (hasInfant) add(SpecialRequest(category = "INFANT", detail = "INFT"))
+                            if (hasPet) add(SpecialRequest(category = "PET", detail = "PETC"))
+                        }
+                        viewModel.submitSpecialRequests(checkInId, requests)
+                    }
+                    onContinue()
+                },
                 modifier = Modifier.padding(bottom = Spacing.lg)
             )
         }
