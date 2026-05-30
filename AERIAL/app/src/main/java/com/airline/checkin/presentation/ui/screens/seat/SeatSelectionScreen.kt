@@ -60,6 +60,20 @@ fun SeatSelectionScreen(
     }
     val seatFee = "Included"
 
+    var pendingContinue by remember { mutableStateOf(false) }
+    var pendingSeatId by remember { mutableStateOf<String?>(null) }
+    var localError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(uiState.isLoading, uiState.error, uiState.selectedSeat) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null && (pendingSeatId == null || uiState.selectedSeat?.id == pendingSeatId)) {
+                onSeatConfirmed()
+            }
+            pendingContinue = false
+            pendingSeatId = null
+        }
+    }
+
     Scaffold(
         topBar = {
             AirlineTopBar(
@@ -77,9 +91,13 @@ fun SeatSelectionScreen(
                 fee = seatFee,
                 onConfirm = {
                     if (checkInId != null && selectedSeat != null) {
+                        localError = null
+                        pendingContinue = true
+                        pendingSeatId = selectedSeat.id
                         viewModel.selectSeat(checkInId, selectedSeat.id)
+                    } else {
+                        localError = "Select a seat to continue."
                     }
-                    onSeatConfirmed()
                 }
             )
         }
@@ -112,6 +130,22 @@ fun SeatSelectionScreen(
                     SeatLegendItem("Premium", SeatStatus.PREMIUM)
                     SeatLegendItem("Selected", SeatStatus.SELECTED)
                     SeatLegendItem("Occupied", SeatStatus.OCCUPIED)
+                }
+
+                if (localError != null) {
+                    Spacer(modifier = Modifier.height(Spacing.md))
+                    ErrorBanner(
+                        message = localError ?: "Select a seat to continue.",
+                        onDismiss = { localError = null }
+                    )
+                }
+
+                if (uiState.error != null) {
+                    Spacer(modifier = Modifier.height(Spacing.md))
+                    ErrorBanner(
+                        message = uiState.error ?: "Unable to reserve seat.",
+                        onDismiss = { viewModel.clearError() }
+                    )
                 }
             }
 

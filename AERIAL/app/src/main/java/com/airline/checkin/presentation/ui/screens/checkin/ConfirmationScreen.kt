@@ -43,6 +43,16 @@ fun ConfirmationScreen(
     val baggageCount = uiState.baggage.sumOf { it.quantity }
     val pnr = uiState.bookingReference.ifBlank { uiState.checkIn?.bookingId.orEmpty() }
     var acknowledged by remember { mutableStateOf(false) }
+    var pendingContinue by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isLoading, uiState.error, uiState.boardingPass) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null && uiState.boardingPass != null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -62,6 +72,14 @@ fun ConfirmationScreen(
                 .padding(horizontal = Spacing.gutter)
         ) {
             Spacer(modifier = Modifier.height(Spacing.xl))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to complete check-in.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             // 1. Success Header
             Column(
@@ -148,8 +166,10 @@ fun ConfirmationScreen(
                 text = "Complete Check-in",
                 enabled = acknowledged,
                 onClick = {
-                    uiState.checkIn?.id?.let { viewModel.confirmCheckIn(it) }
-                    onContinue()
+                    uiState.checkIn?.id?.let {
+                        pendingContinue = true
+                        viewModel.confirmCheckIn(it)
+                    }
                 }
             )
             

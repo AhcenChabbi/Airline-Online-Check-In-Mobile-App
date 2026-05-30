@@ -42,6 +42,7 @@ fun BaggageDeclarationScreen(
     var oversizedCount by remember { mutableIntStateOf(0) }
     var fragileCount by remember { mutableIntStateOf(0) }
     var sportsCount by remember { mutableIntStateOf(0) }
+    var pendingContinue by remember { mutableStateOf(false) }
 
     val checkedBagPrice = 45.0
     val specialBagPrice = 65.0
@@ -50,6 +51,15 @@ fun BaggageDeclarationScreen(
         (oversizedCount * specialBagPrice) +
         (fragileCount * 20.0) +
         (sportsCount * specialBagPrice)
+
+    LaunchedEffect(uiState.isLoading, uiState.error) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -73,9 +83,9 @@ fun BaggageDeclarationScreen(
                             if (fragileCount > 0) add(Baggage(bagType = "FRAGILE", quantity = fragileCount))
                             if (sportsCount > 0) add(Baggage(bagType = "SPORTS_EQUIPMENT", quantity = sportsCount))
                         }
+                        pendingContinue = true
                         viewModel.declareBaggage(checkInId, bags)
                     }
-                    onContinue()
                 }
             )
         }
@@ -88,6 +98,14 @@ fun BaggageDeclarationScreen(
                 .padding(horizontal = Spacing.gutter)
         ) {
             Spacer(modifier = Modifier.height(Spacing.md))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to save baggage details.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             // 1. Progress Bar
             StepProgressBar(currentStep = 3, totalSteps = 5)

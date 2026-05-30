@@ -38,6 +38,16 @@ fun SpecialRequestsScreen(
     var hasAccessibility by remember { mutableStateOf(false) }
     var hasInfant by remember { mutableStateOf(false) }
     var hasPet by remember { mutableStateOf(false) }
+    var pendingContinue by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isLoading, uiState.error) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -62,6 +72,14 @@ fun SpecialRequestsScreen(
             StepProgressBar(currentStep = 4, totalSteps = 5)
 
             Spacer(modifier = Modifier.height(Spacing.lg))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to save special requests.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             Text(
                 text = "Special Requests",
@@ -136,9 +154,9 @@ fun SpecialRequestsScreen(
                             if (hasInfant) add(SpecialRequest(category = "INFANT", detail = "INFT"))
                             if (hasPet) add(SpecialRequest(category = "PET", detail = "PETC"))
                         }
+                        pendingContinue = true
                         viewModel.submitSpecialRequests(checkInId, requests)
                     }
-                    onContinue()
                 },
                 modifier = Modifier.padding(bottom = Spacing.lg)
             )

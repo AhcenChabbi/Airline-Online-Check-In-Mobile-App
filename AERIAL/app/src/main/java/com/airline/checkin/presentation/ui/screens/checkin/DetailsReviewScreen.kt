@@ -38,6 +38,7 @@ fun DetailsReviewScreen(
     val passenger = uiState.passenger
     val flight = uiState.flight
     val checkInId = uiState.checkIn?.id
+    var pendingContinue by remember { mutableStateOf(false) }
 
     // State for editable fields
     var firstName by remember { mutableStateOf("") }
@@ -54,6 +55,15 @@ fun DetailsReviewScreen(
         nationality = passenger?.nationality.orEmpty()
         dob = passenger?.dateOfBirth.orEmpty()
         passportExpiry = passenger?.passportExpiry.orEmpty()
+    }
+
+    LaunchedEffect(uiState.isLoading, uiState.error) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
     }
 
     Scaffold(
@@ -75,6 +85,14 @@ fun DetailsReviewScreen(
                 .padding(horizontal = Spacing.gutter)
         ) {
             Spacer(modifier = Modifier.height(Spacing.md))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to confirm details.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             // 1. Progress Bar
             StepProgressBar(currentStep = 2, totalSteps = 5)
@@ -190,6 +208,7 @@ fun DetailsReviewScreen(
                 text = "Confirm Details",
                 onClick = {
                     if (checkInId != null) {
+                        pendingContinue = true
                         viewModel.submitPassportAndConfirm(
                             checkInId,
                             PassportScanData(
@@ -200,7 +219,6 @@ fun DetailsReviewScreen(
                             )
                         )
                     }
-                    onContinue()
                 },
                 modifier = Modifier.padding(bottom = Spacing.lg)
             )

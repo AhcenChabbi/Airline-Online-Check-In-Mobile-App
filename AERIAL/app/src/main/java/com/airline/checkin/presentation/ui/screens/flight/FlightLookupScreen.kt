@@ -35,14 +35,33 @@ fun FlightLookupScreen(
     checkInViewModel: CheckInViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkInState by checkInViewModel.uiState.collectAsStateWithLifecycle()
     var bookingRef by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var isSearchDone by remember { mutableStateOf(false) }
+    var pendingSearch by remember { mutableStateOf(false) }
+    var pendingStart by remember { mutableStateOf(false) }
 
     val bookingLookup = uiState.bookingLookup
     val displayedFlight = bookingLookup?.flight
     val primaryPassenger = bookingLookup?.passengers?.firstOrNull { it.isPrimary }
     val displayedPassenger = primaryPassenger?.name ?: lastName
+
+    LaunchedEffect(uiState.isLoading, uiState.error, bookingLookup) {
+        if (pendingSearch && !uiState.isLoading) {
+            pendingSearch = false
+            isSearchDone = true
+        }
+    }
+
+    LaunchedEffect(checkInState.isLoading, checkInState.error, checkInState.checkIn) {
+        if (pendingStart && !checkInState.isLoading) {
+            if (checkInState.error == null && checkInState.checkIn != null) {
+                onFlightSelected()
+            }
+            pendingStart = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -111,7 +130,7 @@ fun FlightLookupScreen(
                     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
                     SearchFlightButton(
                         onClick = {
-                            isSearchDone = true
+                            pendingSearch = true
                             keyboardController?.hide()
                             focusManager.clearFocus()
                             viewModel.lookupBooking(bookingRef, lastName)
@@ -119,6 +138,22 @@ fun FlightLookupScreen(
                         enabled = bookingRef.isNotBlank() && lastName.isNotBlank()
                     )
                 }
+            }
+
+            if (uiState.error != null) {
+                Spacer(modifier = Modifier.height(Spacing.lg))
+                ErrorBanner(
+                    message = uiState.error ?: "Lookup failed.",
+                    onDismiss = { viewModel.clearError() }
+                )
+            }
+
+            if (checkInState.error != null) {
+                Spacer(modifier = Modifier.height(Spacing.lg))
+                ErrorBanner(
+                    message = checkInState.error ?: "Check-in failed.",
+                    onDismiss = { checkInViewModel.clearError() }
+                )
             }
 
             // 3. Search Results or Empty State
@@ -142,10 +177,16 @@ fun FlightLookupScreen(
                         onStartCheckIn = {
                             val passengerId = primaryPassenger?.id
                             if (passengerId != null) {
+                                pendingStart = true
                                 checkInViewModel.initiateCheckIn(bookingLookup.bookingId, passengerId)
-                                onFlightSelected()
                             }
                         }
+                    )
+                } else if (isSearchDone && uiState.error == null) {
+                    Text(
+                        text = "No booking found.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
