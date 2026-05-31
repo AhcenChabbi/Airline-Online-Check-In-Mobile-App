@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.R
+import com.airline.checkin.presentation.navigation.Screen
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
 import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
@@ -28,7 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun FlightLookupScreen(
-    onFlightSelected: () -> Unit,
+    onFlightSelected: (String) -> Unit,
     onLogout: () -> Unit,
     onNavigateToNotifications: () -> Unit = {},
     viewModel: FlightViewModel = hiltViewModel(),
@@ -57,7 +58,7 @@ fun FlightLookupScreen(
     LaunchedEffect(checkInState.isLoading, checkInState.error, checkInState.checkIn) {
         if (pendingStart && !checkInState.isLoading) {
             if (checkInState.error == null && checkInState.checkIn != null) {
-                onFlightSelected()
+                onFlightSelected(resolveCheckInRoute(checkInState.checkIn?.currentStep))
             }
             pendingStart = false
         }
@@ -227,6 +228,18 @@ fun FlightLookupScreen(
 
             Spacer(modifier = Modifier.height(Spacing.xl))
         }
+    }
+}
+
+private fun resolveCheckInRoute(currentStep: String?): String {
+    return when (currentStep) {
+        "PASSPORT_SCAN" -> Screen.PassportScan.route
+        "DETAILS_REVIEW" -> Screen.DetailsReview.route
+        "SEAT_SELECTION" -> Screen.SeatSelection.route
+        "BAGGAGE_DECLARATION" -> Screen.BaggageDeclaration.route
+        "SPECIAL_REQUESTS" -> Screen.SpecialRequests.route
+        "CONFIRMATION" -> Screen.Confirmation.route
+        else -> Screen.PassportScan.route
     }
 }
 

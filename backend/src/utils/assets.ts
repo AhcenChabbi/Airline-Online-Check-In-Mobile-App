@@ -7,6 +7,7 @@ import {
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_SECRET,
   CLOUDINARY_API_KEY,
+  NODE_ENV,
 } from "./../config/env";
 import axios from "axios";
 
@@ -27,6 +28,10 @@ export async function generateAndUploadQRCode(
   try {
     // 1. Generate QR code as a Base64 string (Data URI)
     const qrCodeBase64 = await QRCode.toDataURL(qrCodeData);
+
+    if (NODE_ENV === "development") {
+      return qrCodeBase64;
+    }
 
     // 2. Upload directly to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(qrCodeBase64, {
@@ -53,8 +58,13 @@ export async function generateBoardingPassPdfBuffer(
   offlinePayload: any,
   qrCodeUrl: string,
 ): Promise<Buffer> {
-  const response = await axios.get(qrCodeUrl, { responseType: "arraybuffer" });
-  const qrBuffer = Buffer.from(response.data);
+  const qrBuffer = qrCodeUrl.startsWith("data:")
+    ? Buffer.from(qrCodeUrl.split(",")[1] ?? "", "base64")
+    : Buffer.from(
+        (
+          await axios.get(qrCodeUrl, { responseType: "arraybuffer" })
+        ).data,
+      );
 
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: "A4" });

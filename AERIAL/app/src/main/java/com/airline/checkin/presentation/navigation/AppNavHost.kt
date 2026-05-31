@@ -67,7 +67,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
 
         composable(Screen.FlightLookup.route) {
             FlightLookupScreen(
-                onFlightSelected = { navController.navigate(Screen.PassportScan.route) },
+                onFlightSelected = { route -> navController.navigate(route) },
                 onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
