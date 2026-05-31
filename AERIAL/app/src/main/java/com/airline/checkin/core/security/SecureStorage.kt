@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import androidx.core.content.edit
 
 object SecureStorage {
     private const val FILE_NAME = "secure_prefs"
@@ -26,22 +27,27 @@ object SecureStorage {
     }
 
     fun putString(key: String, value: String?) {
-        val editor = prefs().edit()
+        val editor = requirePrefs().edit()
+
         if (value == null) {
             editor.remove(key)
         } else {
             editor.putString(key, value)
         }
+
         editor.apply()
     }
 
-    fun getString(key: String): String? = prefs().getString(key, null)
+
+
+    fun getString(key: String): String? =
+        requirePrefs().getString(key, null)
 
     fun clear() {
-        prefs().edit().clear().apply()
+        requirePrefs().edit { clear() }
     }
 
-    private fun prefs(): SharedPreferences {
+    private fun requirePrefs(): SharedPreferences {
         check(::prefs.isInitialized) { "SecureStorage is not initialized" }
         return prefs
     }

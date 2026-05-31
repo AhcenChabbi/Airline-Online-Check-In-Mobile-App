@@ -82,7 +82,7 @@
     <string name="error_email_required">Email address is required</string>
     <string name="error_email_invalid">Please enter a valid email address</string>
     <string name="error_password_required">Password is required</string>
-    <string name="error_password_short">Password must be at least 6 characters</string>
+    <string name="error_password_short">Password must be at least 8 characters</string>
     <string name="error_full_name_required">Full name is required</string>
     <string name="error_full_name_invalid">Please enter a valid full name</string>
     <string name="error_phone_required">Phone number is required</string>

@@ -1,6 +1,7 @@
 package com.airline.checkin.core.di
 
 import com.airline.checkin.core.network.AuthInterceptor
+import com.airline.checkin.core.security.TokenManager
 import com.airline.checkin.data.remote.api.AuthApi
 import com.airline.checkin.data.remote.api.BoardingPassApi
 import com.airline.checkin.data.remote.api.CheckInApi
@@ -20,16 +21,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://api.aerial.example.com/"
+    private const val BASE_URL = "http://192.168.165.250:3000/api/" // Android emulator -> host machine
 
     @Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
             HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
-    @Provides 
-    @Singleton 
-    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()
+    @Provides
+    @Singleton
+    fun provideAuthInterceptor(tokenManager: TokenManager): AuthInterceptor =
+        AuthInterceptor(tokenManager)
 
     @Provides
     @Singleton

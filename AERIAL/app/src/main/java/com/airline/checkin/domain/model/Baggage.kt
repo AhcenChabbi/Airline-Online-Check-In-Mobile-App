@@ -10,5 +10,4 @@ data class Baggage(
         val tagNumber: String? = null,
         val createdAt: String? = null
 ) {
-    constructor(weightKg: Double) : this(weightKg = weightKg)
 }

@@ -4,15 +4,15 @@ import com.airline.checkin.data.remote.dto.UserDto
 import com.airline.checkin.domain.model.User
 
 object UserMapper {
-    fun toDomain(dto: UserDto): User =
+    fun UserDto.toDomain(): User =
             User(
-                    id = dto.id,
-                    fullName = dto.fullName,
-                    email = dto.email,
-                    phone = dto.phone,
-                    avatarUrl = dto.avatarUrl,
-                    googleId = dto.googleId,
-                    createdAt = dto.createdAt,
-                    updatedAt = dto.updatedAt
+                    id = id,
+                    fullName = fullName,
+                    email = email,
+                    phone = phone,
+                    avatarUrl = avatarUrl,
+                    googleId = googleId,
+                    createdAt = createdAt,
+                    updatedAt = updatedAt
             )
 }

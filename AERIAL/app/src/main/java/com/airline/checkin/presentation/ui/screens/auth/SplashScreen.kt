@@ -9,16 +9,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.delay
+import com.airline.checkin.presentation.ui.viewmodels.SplashViewModel
 
 @Composable
 fun SplashScreen(onNavigateToLogin: () -> Unit, onNavigateToHome: () -> Unit) {
-    // TODO: Check persisted session token from DataStore
-    // Currently always navigates to Login; when auth state is wired:
-    //   if (isLoggedIn) onNavigateToHome() else onNavigateToLogin()
+    val viewModel: SplashViewModel = hiltViewModel()
     LaunchedEffect(Unit) {
-        delay(2000)
-        onNavigateToLogin()
+        delay(1500)
+        if (viewModel.isLoggedIn) {
+            onNavigateToHome()
+        } else {
+            onNavigateToLogin()
+        }
     }
 
     Box(
