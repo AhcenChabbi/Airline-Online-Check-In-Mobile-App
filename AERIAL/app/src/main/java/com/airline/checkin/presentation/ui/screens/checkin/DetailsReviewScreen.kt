@@ -54,7 +54,7 @@ fun DetailsReviewScreen(
         passportNumber = passenger?.passportNumber.orEmpty()
         nationality = passenger?.nationality.orEmpty()
         dob = passenger?.dateOfBirth.orEmpty()
-        passportExpiry = passenger?.passportExpiry.orEmpty()
+        passportExpiry = passenger?.passportExpiry.toApiDateString()
     }
 
     LaunchedEffect(uiState.isLoading, uiState.error) {
@@ -213,7 +213,7 @@ fun DetailsReviewScreen(
                             checkInId,
                             PassportScanData(
                                 passportNumber = passportNumber,
-                                passportExpiry = passportExpiry,
+                                passportExpiry = passportExpiry.toApiDateString(),
                                 passportMrz = passenger?.passportMrz,
                                 passportScanUrl = passenger?.passportScanUrl
                             )
@@ -225,3 +225,8 @@ fun DetailsReviewScreen(
         }
     }
 }
+
+private fun String?.toApiDateString(): String =
+    this?.takeIf { it.isNotBlank() }?.let { value ->
+        if (value.length >= 10) value.substring(0, 10) else value
+    }.orEmpty()

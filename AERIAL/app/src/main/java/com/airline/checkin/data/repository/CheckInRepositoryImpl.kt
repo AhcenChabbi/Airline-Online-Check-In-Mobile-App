@@ -43,7 +43,7 @@ class CheckInRepositoryImpl @Inject constructor(
             checkinId,
             PassportScanRequestDto(
                 passportNumber = data.passportNumber,
-                passportExpiry = data.passportExpiry,
+                passportExpiry = data.passportExpiry.toApiDateString(),
                 passportMrz = data.passportMrz,
                 passportScanUrl = data.passportScanUrl
             )
@@ -95,3 +95,6 @@ class CheckInRepositoryImpl @Inject constructor(
         BoardingPassMapper.toDomain(response.boardingPass)
     }
 }
+
+private fun String.toApiDateString(): String =
+    if (length >= 10) substring(0, 10) else this
