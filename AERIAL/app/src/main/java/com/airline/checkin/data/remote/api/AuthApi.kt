@@ -10,21 +10,26 @@ import com.airline.checkin.data.remote.dto.RegisterRequestDto
 import com.airline.checkin.data.remote.dto.UserMeResponseDto
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface AuthApi {
-    @POST("api/auth/register") suspend fun register(@Body body: RegisterRequestDto): AuthResponseDto
+    @Headers("No-Auth: true")
+    @POST("auth/register")
+    suspend fun register(@Body body: RegisterRequestDto): AuthResponseDto
 
-    @POST("api/auth/login") suspend fun login(@Body body: LoginRequestDto): AuthResponseDto
+    @Headers("No-Auth: true")
+    @POST("auth/login")
+    suspend fun login(@Body body: LoginRequestDto): AuthResponseDto
 
-    @POST("api/auth/google")
-    suspend fun loginWithGoogle(@Body body: GoogleAuthRequestDto): AuthResponseDto
+    @Headers("No-Auth: true")
+    @POST("auth/google")
+    suspend fun googleAuth(@Body body: GoogleAuthRequestDto): AuthResponseDto
 
-    @POST("api/auth/refresh")
+
+    @POST("auth/refresh")
     suspend fun refresh(@Body body: RefreshTokenRequestDto): AuthResponseDto
 
-    @GET("api/users/me") suspend fun getMe(): UserMeResponseDto
-
-    @POST("api/users/fcm-token")
-    suspend fun registerFcmToken(@Body body: FcmTokenRequestDto): MessageResponseDto
+    @GET("users/me")
+    suspend fun getMe(): UserMeResponseDto
 }

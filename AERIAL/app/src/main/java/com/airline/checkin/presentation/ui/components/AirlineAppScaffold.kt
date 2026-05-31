@@ -16,13 +16,6 @@ fun AirlineAppScaffold(
             topBar = {
                 AirlineTopBar(companyName = companyName, onNotificationClick = onNotificationClick)
             },
-            bottomBar = {
-                AirlineBottomNavBar(
-                        items = DefaultBottomNavItems,
-                        selectedRoute = selectedRoute,
-                        onItemClick = onBottomItemClick
-                )
-            },
             content = content
     )
 }

@@ -1,24 +1,45 @@
 package com.airline.checkin.data.remote.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class RegisterRequestDto(
-        val fullName: String,
-        val email: String,
-        val phone: String? = null,
-        val password: String
+        @SerializedName("fullName") val fullName: String,
+        @SerializedName("email") val email: String,
+        @SerializedName("phone") val phone: String? = null,
+        @SerializedName("password") val password: String
 )
 
-data class LoginRequestDto(val email: String, val password: String)
+data class LoginRequestDto(
+        @SerializedName("email") val email: String,
+        @SerializedName("password") val password: String
+)
 
-data class GoogleAuthRequestDto(val idToken: String)
+data class GoogleAuthRequestDto(
+        @SerializedName("idToken") val idToken: String
+)
 
-data class RefreshTokenRequestDto(val refreshToken: String)
+data class RefreshTokenRequestDto(
+        @SerializedName("refreshToken") val refreshToken: String
+)
 
-data class AuthResponseDto(val accessToken: String, val refreshToken: String, val user: UserDto)
+data class AuthResponseDto(
+        @SerializedName("accessToken") val accessToken: String,
+        @SerializedName("refreshToken") val refreshToken: String,
+        @SerializedName("user") val user: UserDto
+)
 
-data class UserMeResponseDto(val user: UserDto)
+data class UserMeResponseDto(
+        @SerializedName("user") val user: UserDto
+)
 
-data class FcmTokenRequestDto(val fcmToken: String)
+data class FcmTokenRequestDto(
+        @SerializedName("fcmToken") val fcmToken: String
+)
 
-data class MessageResponseDto(val message: String)
+data class MessageResponseDto(
+        @SerializedName("message") val message: String
+)
 
-data class HealthResponseDto(val message: String)
+data class HealthResponseDto(
+        @SerializedName("message") val message: String
+)

@@ -37,15 +37,15 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.Login.route) {
             LoginScreen(
                     onLoginSuccess = {
-                        navController.navigate(Screen.HOME) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(0) { inclusive = true }
                         }
                     },
                     onNavigateToRegister = { navController.navigate(Screen.Register.route) }
             )
         }
 
-        composable(Screen.HOME) {
+        composable(Screen.Home.route) {
             com.airline.checkin.presentation.ui.screens.home.HomeScreen(
                 userName = "Abdu",
                 onNavigateToSearch = { navController.navigate(Screen.FlightLookup.route) },
@@ -57,8 +57,8 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.Register.route) {
             RegisterScreen(
                     onRegisterSuccess = {
-                        navController.navigate(Screen.HOME) {
-                            popUpTo(Screen.Register.route) { inclusive = true }
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(0) { inclusive = true }
                         }
                     },
                     onBack = { navController.popBackStack() }
@@ -85,7 +85,8 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Profile.route) { inclusive = true }
                     }
-                }
+                },
+                navController = navController
             )
         }
 

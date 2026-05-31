@@ -6,9 +6,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SignInWithGoogleUseCase @Inject constructor(
+class GetMeUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(idToken: String): Result<User> =
-        authRepository.googleSignIn(idToken)
+    suspend operator fun invoke(): Result<User> = authRepository.getMe()
 }
+

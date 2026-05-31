@@ -1,14 +1,15 @@
 package com.airline.checkin.domain.usecase.auth
 
-import com.airline.checkin.domain.model.User
 import com.airline.checkin.domain.repository.AuthRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SignInWithGoogleUseCase @Inject constructor(
+class LogoutUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(idToken: String): Result<User> =
-        authRepository.googleSignIn(idToken)
+    suspend operator fun invoke() {
+        authRepository.logout()
+    }
 }
+

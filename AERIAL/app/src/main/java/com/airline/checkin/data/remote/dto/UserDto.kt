@@ -1,12 +1,14 @@
 package com.airline.checkin.data.remote.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class UserDto(
-        val id: String,
-        val fullName: String,
-        val email: String,
-        val phone: String? = null,
-        val avatarUrl: String? = null,
-        val googleId: String? = null,
-        val createdAt: String? = null,
-        val updatedAt: String? = null
+        @SerializedName("id") val id: String,
+        @SerializedName("fullName") val fullName: String,
+        @SerializedName("email") val email: String,
+        @SerializedName("phone") val phone: String? = null,
+        @SerializedName("avatarUrl") val avatarUrl: String? = null,
+        @SerializedName("googleId") val googleId: String? = null,
+        @SerializedName("createdAt") val createdAt: String? = null,
+        @SerializedName("updatedAt") val updatedAt: String? = null
 )
