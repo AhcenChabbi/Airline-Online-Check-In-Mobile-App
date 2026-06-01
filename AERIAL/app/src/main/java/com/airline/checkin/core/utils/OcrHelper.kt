@@ -71,7 +71,10 @@ object OcrHelper {
 
     private fun parsePassportMrz(line1: String, line2: String): PassportScanData {
         val passportNumber = line2.take(9).trim('<')
-        val nationality = line2.substringOrNull(10, 13)?.trim('<')
+        val nationality = normalizeNationality(
+            line2.substringOrNull(10, 13),
+            extractIssuerCountry(line1)
+        )
         val dateOfBirth = extractDate(line2, 13)
         val expiryDate = extractDate(line2, 21)
         val (lastName, firstName) = extractNames(line1)
@@ -91,7 +94,7 @@ object OcrHelper {
 
     private fun parseIdCardMrz(line1: String, line2: String, line3: String): PassportScanData {
         val documentNumber = line1.substring(5, minOf(14, line1.length)).trim('<')
-        val nationality = line2.take(3).trim('<')
+        val nationality = normalizeNationality(line2.take(3), extractIssuerCountry(line1))
         val dateOfBirth = extractDate(line2, 13)
         val expiryDate = extractDate(line2, 21)
 
@@ -175,6 +178,35 @@ object OcrHelper {
             ?.trim()
             ?.takeIf { it.isNotBlank() }
         return lastName to firstName
+    }
+
+    private fun extractIssuerCountry(line1: String): String? {
+        val issuerToken = line1.substringAfter("P<", "").take(3)
+        return normalizeNationality(issuerToken, null)
+    }
+
+    private fun normalizeNationality(rawValue: String?, fallback: String?): String? {
+        val candidate = rawValue
+            ?.replace("<", "")
+            ?.replace(" ", "")
+            ?.uppercase()
+            ?.takeIf { it.isNotBlank() }
+            ?: fallback
+
+        return when (candidate) {
+            null -> null
+            "D", "DE", "DEU" -> "DEU"
+            "F", "FR", "FRA" -> "FRA"
+            "E", "ES", "ESP" -> "ESP"
+            "I", "IT", "ITA" -> "ITA"
+            "P", "PT", "PRT" -> "PRT"
+            "G", "GB", "GBR" -> "GBR"
+            "A", "AT", "AUT" -> "AUT"
+            "B", "BE", "BEL" -> "BEL"
+            "CH", "CHE" -> "CHE"
+            "DZ", "DZA" -> "DZA"
+            else -> candidate.takeIf { it.length == 3 }
+        }
     }
 
     private fun extractDate(line: String, startIndex: Int): String? {
