@@ -3,7 +3,6 @@ package com.airline.checkin.data.repository
 import com.airline.checkin.data.remote.api.AuthApi
 import com.airline.checkin.data.remote.dto.FcmTokenRequestDto
 import com.airline.checkin.core.security.TokenManager
-import com.airline.checkin.data.remote.api.AuthApi
 import com.airline.checkin.data.remote.dto.GoogleAuthRequestDto
 import com.airline.checkin.data.remote.dto.LoginRequestDto
 import com.airline.checkin.data.remote.dto.RegisterRequestDto
@@ -11,13 +10,10 @@ import com.airline.checkin.data.remote.mapper.UserMapper.toDomain
 import com.airline.checkin.domain.model.User
 import com.airline.checkin.domain.repository.AuthRepository
 import javax.inject.Inject
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val authApi: AuthApi
-) @Inject constructor(
     private val authApi: AuthApi,
     private val tokenManager: TokenManager
 ) : AuthRepository {

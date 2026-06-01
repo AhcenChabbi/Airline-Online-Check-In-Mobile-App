@@ -39,9 +39,10 @@ android {
 }
 
 dependencies {
-    // Firebase
+     // Firebase — single BoM declaration
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation("com.google.firebase:firebase-analytics")  // still fine, managed by BoM
 
     // Core
     implementation(libs.androidx.core.ktx)
@@ -81,9 +82,6 @@ dependencies {
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.3.0")
-
-    implementation(platform("com.google.firebase:firebase-bom:34.14.0"))
-    implementation("com.google.firebase:firebase-analytics")
 
 
     // DataStore

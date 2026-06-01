@@ -48,7 +48,6 @@ object SecureStorage {
     }
 
     private fun requirePrefs(): SharedPreferences {
-    private fun requirePrefs(): SharedPreferences {
         check(::prefs.isInitialized) { "SecureStorage is not initialized" }
         return prefs
     }

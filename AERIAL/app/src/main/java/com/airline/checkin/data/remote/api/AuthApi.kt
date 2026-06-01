@@ -15,21 +15,24 @@ import retrofit2.http.POST
 
 interface AuthApi {
     @Headers("No-Auth: true")
-    @POST("auth/register")
+    @POST("api/auth/register")
     suspend fun register(@Body body: RegisterRequestDto): AuthResponseDto
 
     @Headers("No-Auth: true")
-    @POST("auth/login")
+    @POST("api/auth/login")
     suspend fun login(@Body body: LoginRequestDto): AuthResponseDto
 
     @Headers("No-Auth: true")
-    @POST("auth/google")
+    @POST("api/auth/google")
     suspend fun googleAuth(@Body body: GoogleAuthRequestDto): AuthResponseDto
 
 
-    @POST("auth/refresh")
+    @POST("api/auth/refresh")
     suspend fun refresh(@Body body: RefreshTokenRequestDto): AuthResponseDto
 
-    @GET("users/me")
+    @GET("api/users/me")
     suspend fun getMe(): UserMeResponseDto
+
+    @POST("api/auth/fcm-token")
+    suspend fun registerFcmToken(@Body body: FcmTokenRequestDto): MessageResponseDto
 }

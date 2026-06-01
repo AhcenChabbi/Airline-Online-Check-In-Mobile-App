@@ -22,7 +22,6 @@ import com.airline.checkin.domain.usecase.checkin.SelectSeatUseCase
 import com.airline.checkin.domain.usecase.checkin.StartCheckInUseCase
 import com.airline.checkin.domain.usecase.checkin.SubmitSpecialRequestUseCase
 import com.airline.checkin.domain.usecase.flight.GetFlightByBookingUseCase
-import com.airline.checkin.domain.repository.AuthRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
