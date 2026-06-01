@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airline.checkin.domain.model.Flight
 import com.airline.checkin.presentation.ui.theme.Spacing
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun AeroSearchTextField(
@@ -72,6 +75,24 @@ fun AeroSearchTextField(
             )
         )
     }
+}
+
+private fun formatTime(iso: String?): String {
+    if (iso.isNullOrBlank()) return "—"
+    return runCatching {
+        val instant = Instant.parse(iso)
+        val zdt = instant.atZone(ZoneId.systemDefault())
+        zdt.format(DateTimeFormatter.ofPattern("HH:mm"))
+    }.getOrNull() ?: iso
+}
+
+private fun formatDate(iso: String?): String {
+    if (iso.isNullOrBlank()) return "—"
+    return runCatching {
+        val instant = Instant.parse(iso)
+        val zdt = instant.atZone(ZoneId.systemDefault())
+        zdt.format(DateTimeFormatter.ofPattern("EEE, dd MMM yyyy"))
+    }.getOrNull() ?: iso
 }
 
 @Composable
@@ -178,7 +199,12 @@ fun FlightResultCard(
                         color = Color(0xFF051849)
                     )
                     Text(text = flight.originCity, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = flight.departureTime, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        text = formatTime(flight.departureTime),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
 
                 Column(
@@ -211,7 +237,12 @@ fun FlightResultCard(
                         color = Color(0xFF051849)
                     )
                     Text(text = flight.destinationCity, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = flight.arrivalTime, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        text = formatTime(flight.arrivalTime),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
 
@@ -228,7 +259,7 @@ fun FlightResultCard(
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text("DATE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(flight.date, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    Text(formatDate(flight.date), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 }
             }
 

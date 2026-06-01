@@ -20,7 +20,8 @@ data class BookingWithFlight(
 @Dao
 interface BookingDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun save(booking: BookingEntity)
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        suspend fun save(booking: BookingEntity): Long
 
     @Query("SELECT * FROM bookings WHERE id = :id") fun get(id: String): Flow<BookingEntity?>
 
@@ -36,9 +37,11 @@ interface BookingDao {
     @Query("SELECT * FROM bookings ORDER BY cached_at DESC") fun getAll(): Flow<List<BookingEntity>>
 
     @Query("UPDATE bookings SET status = :status WHERE id = :id")
-    suspend fun updateStatus(id: String, status: BookingStatus)
+        suspend fun updateStatus(id: String, status: BookingStatus): Int
 
-    @Query("DELETE FROM bookings WHERE id = :id") suspend fun delete(id: String)
+        @Query("DELETE FROM bookings WHERE id = :id")
+        suspend fun delete(id: String): Int
 
-    @Query("DELETE FROM bookings") suspend fun clearAll()
+        @Query("DELETE FROM bookings")
+        suspend fun clearAll(): Int
 }

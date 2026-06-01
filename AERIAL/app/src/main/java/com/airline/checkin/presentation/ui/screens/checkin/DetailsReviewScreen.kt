@@ -23,26 +23,48 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airline.checkin.domain.model.PassportScanData
 
 @Composable
 fun DetailsReviewScreen(
     onContinue: () -> Unit,
     onBack: () -> Unit,
-    // Initial values from OCR
-    initialFirstName: String = "Eleanor",
-    initialLastName: String = "Vance",
-    initialPassportNumber: String = "P987654321",
-    initialNationality: String = "United Kingdom",
-    initialDob: String = "1988-05-14",
-    initialPassportExpiry: String = "2028-05-14"
+    viewModel: CheckInViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val passenger = uiState.passenger
+    val flight = uiState.flight
+    val checkInId = uiState.checkIn?.id
+    var pendingContinue by remember { mutableStateOf(false) }
+
     // State for editable fields
-    var firstName by remember { mutableStateOf(initialFirstName) }
-    var lastName by remember { mutableStateOf(initialLastName) }
-    var passportNumber by remember { mutableStateOf(initialPassportNumber) }
-    var nationality by remember { mutableStateOf(initialNationality) }
-    var dob by remember { mutableStateOf(initialDob) }
-    var passportExpiry by remember { mutableStateOf(initialPassportExpiry) }
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var passportNumber by remember { mutableStateOf("") }
+    var nationality by remember { mutableStateOf("") }
+    var dob by remember { mutableStateOf("") }
+    var passportExpiry by remember { mutableStateOf("") }
+
+    LaunchedEffect(passenger) {
+        firstName = passenger?.firstName.orEmpty()
+        lastName = passenger?.lastName.orEmpty()
+        passportNumber = passenger?.passportNumber.orEmpty()
+        nationality = passenger?.nationality.orEmpty()
+        dob = passenger?.dateOfBirth.orEmpty()
+        passportExpiry = passenger?.passportExpiry.toApiDateString()
+    }
+
+    LaunchedEffect(uiState.isLoading, uiState.error) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -64,6 +86,14 @@ fun DetailsReviewScreen(
         ) {
             Spacer(modifier = Modifier.height(Spacing.md))
 
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to confirm details.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
+
             // 1. Progress Bar
             StepProgressBar(currentStep = 2, totalSteps = 5)
 
@@ -79,11 +109,11 @@ fun DetailsReviewScreen(
 
             // 2. Flight Summary Card (Updated to use Flight model fields)
             FlightInfoCard(
-                flightNumber = "AF1234",
-                originCode = "CDG",
-                originCity = "Paris",
-                destinationCode = "ALG",
-                destinationCity = "Algiers"
+                flightNumber = flight?.flightNumber.orEmpty(),
+                originCode = flight?.originIata.orEmpty(),
+                originCity = flight?.originCity.orEmpty(),
+                destinationCode = flight?.destinationIata.orEmpty(),
+                destinationCity = flight?.destinationCity.orEmpty()
             )
 
             Spacer(modifier = Modifier.height(Spacing.lg))
@@ -176,9 +206,27 @@ fun DetailsReviewScreen(
             // 4. Confirm Button
             ConfirmButton(
                 text = "Confirm Details",
-                onClick = onContinue,
+                onClick = {
+                    if (checkInId != null) {
+                        pendingContinue = true
+                        viewModel.submitPassportAndConfirm(
+                            checkInId,
+                            PassportScanData(
+                                passportNumber = passportNumber,
+                                passportExpiry = passportExpiry.toApiDateString(),
+                                passportMrz = passenger?.passportMrz,
+                                passportScanUrl = passenger?.passportScanUrl
+                            )
+                        )
+                    }
+                },
                 modifier = Modifier.padding(bottom = Spacing.lg)
             )
         }
     }
 }
+
+private fun String?.toApiDateString(): String =
+    this?.takeIf { it.isNotBlank() }?.let { value ->
+        if (value.length >= 10) value.substring(0, 10) else value
+    }.orEmpty()

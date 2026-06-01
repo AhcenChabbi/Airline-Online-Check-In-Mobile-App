@@ -1,5 +1,10 @@
 package com.airline.checkin.presentation.ui.screens.checkin
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,17 +19,58 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
 import com.airline.checkin.presentation.ui.theme.Gold
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
+fun ConfirmationScreen(
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val passengerName = uiState.passenger?.name.orEmpty()
+    val flightNumber = uiState.flight?.flightNumber.orEmpty()
+    val origin = uiState.flight?.originIata.orEmpty()
+    val destination = uiState.flight?.destinationIata.orEmpty()
+    val originCity = uiState.flight?.originCity.orEmpty()
+    val destinationCity = uiState.flight?.destinationCity.orEmpty()
+    val seatCode = uiState.selectedSeat?.seatCode.orEmpty()
+    val seatType = uiState.selectedSeat?.seatType.orEmpty()
+    val baggageCount = uiState.baggage.sumOf { it.quantity }
+    val pnr = uiState.bookingReference.ifBlank { uiState.checkIn?.bookingId.orEmpty() }
     var acknowledged by remember { mutableStateOf(false) }
+    var pendingContinue by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            uiState.checkIn?.id?.let {
+                pendingContinue = true
+                viewModel.confirmCheckIn(it)
+            }
+        }
+    )
+
+    LaunchedEffect(uiState.isLoading, uiState.error, uiState.boardingPass) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null && uiState.boardingPass != null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -44,6 +90,14 @@ fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
                 .padding(horizontal = Spacing.gutter)
         ) {
             Spacer(modifier = Modifier.height(Spacing.xl))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to complete check-in.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             // 1. Success Header
             Column(
@@ -88,14 +142,16 @@ fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
 
             // 2. Summary Card
             FinalSummaryCard(
-                passengerName = "Alex Mercer",
-                flightNumber = "AF1234",
-                origin = "JFK",
-                destination = "LHR",
-                seat = "12A",
-                seatType = "Window",
-                baggageCount = 2,
-                pnr = "A8X9B2"
+                passengerName = passengerName,
+                flightNumber = flightNumber,
+                origin = origin,
+                destination = destination,
+                originCity = originCity,
+                destinationCity = destinationCity,
+                seat = seatCode,
+                seatType = seatType,
+                baggageCount = baggageCount,
+                pnr = pnr
             )
 
             Spacer(modifier = Modifier.height(Spacing.lg))
@@ -127,7 +183,28 @@ fun ConfirmationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             ConfirmButton(
                 text = "Complete Check-in",
                 enabled = acknowledged,
-                onClick = onContinue
+                onClick = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val isPermissionGranted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (!isPermissionGranted) {
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            uiState.checkIn?.id?.let {
+                                pendingContinue = true
+                                viewModel.confirmCheckIn(it)
+                            }
+                        }
+                    } else {
+                        uiState.checkIn?.id?.let {
+                            pendingContinue = true
+                            viewModel.confirmCheckIn(it)
+                        }
+                    }
+                }
             )
             
             Spacer(modifier = Modifier.height(Spacing.md))

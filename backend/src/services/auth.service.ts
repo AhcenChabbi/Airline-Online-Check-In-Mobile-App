@@ -41,7 +41,7 @@ const toSafeUser = (user: {
 
 export const generateTokens = (userId: string) => {
   const accessToken = jwt.sign({ sub: userId }, JWT_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "3d",
   });
 
   const refreshToken = jwt.sign({ sub: userId }, JWT_REFRESH_SECRET, {

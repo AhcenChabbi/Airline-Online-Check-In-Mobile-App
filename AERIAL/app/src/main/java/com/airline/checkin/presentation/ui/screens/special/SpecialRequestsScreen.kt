@@ -15,6 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airline.checkin.domain.model.SpecialRequest
 
 /**
  * Maps to backend SpecialRequest model:
@@ -22,12 +26,28 @@ import com.airline.checkin.presentation.ui.theme.Spacing
  * Detail: e.g. "VGML", "WCHR", "INFT", "PETC"
  */
 @Composable
-fun SpecialRequestsScreen(onContinue: () -> Unit, onBack: () -> Unit) {
+fun SpecialRequestsScreen(
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkInId = uiState.checkIn?.id
     // These states will eventually be part of a list of SpecialRequest objects
     var hasDietary by remember { mutableStateOf(false) }
     var hasAccessibility by remember { mutableStateOf(false) }
     var hasInfant by remember { mutableStateOf(false) }
     var hasPet by remember { mutableStateOf(false) }
+    var pendingContinue by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isLoading, uiState.error) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -52,6 +72,14 @@ fun SpecialRequestsScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             StepProgressBar(currentStep = 4, totalSteps = 5)
 
             Spacer(modifier = Modifier.height(Spacing.lg))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to save special requests.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             Text(
                 text = "Special Requests",
@@ -118,7 +146,18 @@ fun SpecialRequestsScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             // 3. Complete Button
             ConfirmButton(
                 text = "Complete Check-in",
-                onClick = onContinue,
+                onClick = {
+                    if (checkInId != null) {
+                        val requests = buildList {
+                            if (hasDietary) add(SpecialRequest(category = "DIETARY", detail = "VGML"))
+                            if (hasAccessibility) add(SpecialRequest(category = "ACCESSIBILITY", detail = "WCHR"))
+                            if (hasInfant) add(SpecialRequest(category = "INFANT", detail = "INFT"))
+                            if (hasPet) add(SpecialRequest(category = "PET", detail = "PETC"))
+                        }
+                        pendingContinue = true
+                        viewModel.submitSpecialRequests(checkInId, requests)
+                    }
+                },
                 modifier = Modifier.padding(bottom = Spacing.lg)
             )
         }

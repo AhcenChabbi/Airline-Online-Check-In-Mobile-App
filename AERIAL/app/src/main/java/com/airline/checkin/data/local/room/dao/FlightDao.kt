@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FlightDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun save(flight: FlightEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun save(flight: FlightEntity): Long
 
     @Query("SELECT * FROM flights WHERE id = :id") fun get(id: String): Flow<FlightEntity?>
 
@@ -19,8 +20,9 @@ interface FlightDao {
     suspend fun getByNumber(number: String): FlightEntity?
 
     @Query("UPDATE flights SET status = :status WHERE id = :flightId")
-    suspend fun updateStatus(flightId: String, status: FlightStatus)
+    suspend fun updateStatus(flightId: String, status: FlightStatus): Int
 
-    @Query("DELETE FROM flights WHERE id = :id") suspend fun delete(id: String)
+    @Query("DELETE FROM flights WHERE id = :id")
+    suspend fun delete(id: String): Int
     
 }

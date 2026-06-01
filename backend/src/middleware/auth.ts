@@ -32,15 +32,13 @@ export const requireAuth: RequestHandler = async (req, _res, next) => {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    omit: {
-      passwordHash: true,
-    },
   });
 
   if (!user) {
     return next(new AppError("Invalid or expired token", UNAUTHORIZED));
   }
 
-  req.user = user;
+  const { passwordHash: _passwordHash, ...safeUser } = user;
+  req.user = safeUser;
   return next();
 };

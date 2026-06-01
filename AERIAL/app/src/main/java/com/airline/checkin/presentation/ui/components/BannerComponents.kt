@@ -37,7 +37,7 @@ fun ErrorBanner(
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = onDismiss, modifier = Modifier.padding(-8.dp)) {
+            IconButton(onClick = onDismiss) {
                 Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = "Dismiss error",

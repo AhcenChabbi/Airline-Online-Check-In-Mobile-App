@@ -6,3 +6,4 @@ node_modules
 
 # Firebase secret key
 firebase-service-account.json
+fcm-service-account.json

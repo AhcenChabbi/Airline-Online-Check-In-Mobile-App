@@ -67,7 +67,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
 
         composable(Screen.FlightLookup.route) {
             FlightLookupScreen(
-                onFlightSelected = { navController.navigate(Screen.PassportScan.route) },
+                onFlightSelected = { route -> navController.navigate(route) },
                 onNavigateToNotifications = { navController.navigate(Screen.Notifications.route) },
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
@@ -107,6 +107,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.PassportScan.route) {
             com.airline.checkin.presentation.ui.screens.checkin.PassportScanScreen(
                     onScanComplete = { navController.navigate(Screen.DetailsReview.route) },
+                    onSkip = { navController.navigate(Screen.DetailsReview.route) },
                     onBack = { navController.popBackStack() }
             )
         }

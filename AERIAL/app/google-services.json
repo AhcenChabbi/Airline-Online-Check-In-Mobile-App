@@ -1,0 +1,34 @@
+{
+    "project_info": {
+        "project_number": "165673835000",
+        "project_id": "aerial-bf3e0",
+        "storage_bucket": "aerial-bf3e0.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:165673835000:android:5e5252cbac28350a50de0d",
+                "android_client_info": {
+                    "package_name": "com.airline.checkin"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "165673835000-la573u44sit2qq883vntokd49o8i85ln.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyD5CstTcnixvhu1TQB4YG02W1rkraA4ggM"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
