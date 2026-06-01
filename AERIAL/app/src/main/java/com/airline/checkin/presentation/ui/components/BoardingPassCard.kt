@@ -3,11 +3,9 @@ package com.airline.checkin.presentation.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AirplanemodeActive
-import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -100,20 +98,11 @@ fun BoardingPassCard(
                     .padding(Spacing.lg),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(160.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.QrCode2,
-                        contentDescription = "QR Code",
-                        modifier = Modifier.size(120.dp),
-                        tint = Color(0xFF051849)
-                    )
-                }
+                QRCodeView(
+                    data = qrCodeData,
+                    size = 160.dp,
+                    contentDesc = "Boarding QR code"
+                )
                 
                 Spacer(modifier = Modifier.height(Spacing.md))
                 

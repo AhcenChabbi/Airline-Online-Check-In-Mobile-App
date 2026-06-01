@@ -2,6 +2,7 @@ package com.airline.checkin.core.di
 
 import com.airline.checkin.domain.usecase.auth.LoginUseCase
 import com.airline.checkin.domain.usecase.auth.RegisterUseCase
+import com.airline.checkin.domain.usecase.boarding.DownloadBoardingPassPdfUseCase
 import com.airline.checkin.domain.usecase.boarding.GenerateBoardingPassUseCase
 import com.airline.checkin.domain.usecase.boarding.GetOfflineBoardingPassUseCase
 import com.airline.checkin.domain.usecase.checkin.DeclareBaggageUseCase
@@ -9,6 +10,7 @@ import com.airline.checkin.domain.usecase.checkin.SelectSeatUseCase
 import com.airline.checkin.domain.usecase.checkin.StartCheckInUseCase
 import com.airline.checkin.domain.usecase.checkin.SubmitSpecialRequestUseCase
 import com.airline.checkin.domain.usecase.flight.GetFlightByBookingUseCase
+import com.airline.checkin.domain.repository.BoardingPassRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,10 +47,17 @@ object UseCaseModule {
         SubmitSpecialRequestUseCase()
 
     @Provides
-    fun provideGenerateBoardingPassUseCase(): GenerateBoardingPassUseCase =
-        GenerateBoardingPassUseCase()
+    fun provideGenerateBoardingPassUseCase(
+        repository: BoardingPassRepository
+    ): GenerateBoardingPassUseCase = GenerateBoardingPassUseCase(repository)
 
     @Provides
-    fun provideGetOfflineBoardingPassUseCase(): GetOfflineBoardingPassUseCase =
-        GetOfflineBoardingPassUseCase()
+    fun provideGetOfflineBoardingPassUseCase(
+        repository: BoardingPassRepository
+    ): GetOfflineBoardingPassUseCase = GetOfflineBoardingPassUseCase(repository)
+
+    @Provides
+    fun provideDownloadBoardingPassPdfUseCase(
+        repository: BoardingPassRepository
+    ): DownloadBoardingPassPdfUseCase = DownloadBoardingPassPdfUseCase(repository)
 }

@@ -27,6 +27,12 @@ interface BoardingPassDao {
     @Query("SELECT * FROM boarding_passes WHERE passenger_id = :passengerId LIMIT 1")
     fun getByPassenger(passengerId: String): Flow<BoardingPassEntity?>
 
+    @Query("SELECT * FROM boarding_passes WHERE checkin_id = :checkinId LIMIT 1")
+    fun getByCheckin(checkinId: String): Flow<BoardingPassEntity?>
+
+    @Query("SELECT * FROM boarding_passes WHERE checkin_id = :checkinId LIMIT 1")
+    suspend fun getByCheckinOnce(checkinId: String): BoardingPassEntity?
+
     @Transaction
     @Query("SELECT * FROM boarding_passes WHERE passenger_id = :passengerId LIMIT 1")
     fun getWithDetails(passengerId: String): Flow<BoardingPassWithDetails?>
@@ -35,7 +41,7 @@ interface BoardingPassDao {
     suspend fun getUnsynced(): List<BoardingPassEntity>
  
     @Query("UPDATE boarding_passes SET is_synced = 1, synced_at = :at WHERE id = :id")
-    suspend fun markSynced(id: String, at: Long = System.currentTimeMillis())
+    suspend fun markSynced(id: String, at: Long)
 
     @Query("UPDATE boarding_passes SET qr_code_url = :url WHERE id = :id")
     suspend fun updateQrUrl(id: String, url: String)
@@ -44,5 +50,5 @@ interface BoardingPassDao {
     suspend fun updatePdfUrl(id: String, url: String)
 
     @Query("DELETE FROM boarding_passes WHERE expires_at < :now")
-    suspend fun deleteExpired(now: Long = System.currentTimeMillis())
+    suspend fun deleteExpired(now: Long)
 }

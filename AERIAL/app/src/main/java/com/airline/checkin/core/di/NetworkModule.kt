@@ -20,7 +20,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://api.aerial.example.com/"
+    // Using the local machine's IP address.
+    private const val BASE_URL = "http://10.59.94.120:3000/"
 
     @Provides
     @Singleton

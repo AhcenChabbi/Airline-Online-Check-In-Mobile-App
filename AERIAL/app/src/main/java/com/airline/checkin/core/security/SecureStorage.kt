@@ -26,7 +26,7 @@ object SecureStorage {
     }
 
     fun putString(key: String, value: String?) {
-        val editor = prefs().edit()
+        val editor = requirePrefs().edit()
         if (value == null) {
             editor.remove(key)
         } else {
@@ -35,13 +35,13 @@ object SecureStorage {
         editor.apply()
     }
 
-    fun getString(key: String): String? = prefs().getString(key, null)
+    fun getString(key: String): String? = requirePrefs().getString(key, null)
 
     fun clear() {
-        prefs().edit().clear().apply()
+        requirePrefs().edit().clear().apply()
     }
 
-    private fun prefs(): SharedPreferences {
+    private fun requirePrefs(): SharedPreferences {
         check(::prefs.isInitialized) { "SecureStorage is not initialized" }
         return prefs
     }
