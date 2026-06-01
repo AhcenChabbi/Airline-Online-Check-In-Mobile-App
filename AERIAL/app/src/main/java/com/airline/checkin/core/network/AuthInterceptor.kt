@@ -8,7 +8,7 @@ import okhttp3.Response
 class AuthInterceptor : Interceptor {
 
     private val debugFallbackToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZTlkYTg5OS1hNmMzLTRhYjEtYmY1Yy0yOTI4ODQ2Njg4ZjciLCJpYXQiOjE3ODAzMTExNTMsImV4cCI6MTc4MDU3MDM1M30.T7I7IL_HbtDs_CPwu1fED1qneQMZUDL-HxKYhte2u1A"
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2ZTk3YTMwYy03NDQzLTQ4M2YtOWIwYi0yYTU1YTc4ZjE2NjgiLCJpYXQiOjE3ODAzMzE0MjMsImV4cCI6MTc4MDU5MDYyM30._pAYIFRQ8NwTiXYOKL-HPK15H6D3i03R_xZpuWFIjtI"
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()

@@ -14,6 +14,7 @@ import com.airline.checkin.domain.usecase.checkin.ScanPassportUseCase
 import com.airline.checkin.domain.usecase.checkin.SelectSeatUseCase
 import com.airline.checkin.domain.usecase.checkin.StartCheckInUseCase
 import com.airline.checkin.domain.usecase.checkin.SubmitSpecialRequestUseCase
+import com.airline.checkin.domain.usecase.auth.RegisterFcmTokenUseCase
 import com.airline.checkin.presentation.ui.state.CheckInUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @HiltViewModel
 class CheckInViewModel @Inject constructor(
@@ -33,6 +35,7 @@ class CheckInViewModel @Inject constructor(
     private val declareBaggageUseCase: DeclareBaggageUseCase,
     private val submitSpecialRequestUseCase: SubmitSpecialRequestUseCase,
     private val generateBoardingPass: GenerateBoardingPassUseCase,
+    private val registerFcmTokenUseCase: RegisterFcmTokenUseCase,
     private val sessionStore: CheckInSessionStore
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CheckInUiState())
@@ -172,6 +175,24 @@ class CheckInViewModel @Inject constructor(
             generateBoardingPass(checkinId)
                 .onSuccess { boardingPass ->
                     sessionStore.updateBoardingPass(boardingPass)
+
+                    // Fetch and register FCM token asynchronously
+                    viewModelScope.launch {
+                        var fcmToken = "mock_fcm_token_fallback"
+                        try {
+                            fcmToken = com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
+                        } catch (e: Exception) {
+                            android.util.Log.w("CheckInViewModel", "Failed to retrieve real FCM token, using fallback", e)
+                        }
+                        registerFcmTokenUseCase(fcmToken)
+                            .onSuccess {
+                                android.util.Log.d("CheckInViewModel", "Successfully registered FCM token: $fcmToken")
+                            }
+                            .onFailure { error ->
+                                android.util.Log.e("CheckInViewModel", "Failed to register FCM token: ${error.message}")
+                            }
+                    }
+
                     _uiState.update { it.copy(isLoading = false) }
                 }
                 .onFailure { error ->

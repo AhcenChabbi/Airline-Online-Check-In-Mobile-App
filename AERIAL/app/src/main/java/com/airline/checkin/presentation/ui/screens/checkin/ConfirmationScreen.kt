@@ -1,5 +1,10 @@
 package com.airline.checkin.presentation.ui.screens.checkin
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,10 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
 import com.airline.checkin.presentation.ui.theme.Gold
@@ -31,6 +38,7 @@ fun ConfirmationScreen(
     onBack: () -> Unit,
     viewModel: CheckInViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val passengerName = uiState.passenger?.name.orEmpty()
     val flightNumber = uiState.flight?.flightNumber.orEmpty()
@@ -44,6 +52,16 @@ fun ConfirmationScreen(
     val pnr = uiState.bookingReference.ifBlank { uiState.checkIn?.bookingId.orEmpty() }
     var acknowledged by remember { mutableStateOf(false) }
     var pendingContinue by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            uiState.checkIn?.id?.let {
+                pendingContinue = true
+                viewModel.confirmCheckIn(it)
+            }
+        }
+    )
 
     LaunchedEffect(uiState.isLoading, uiState.error, uiState.boardingPass) {
         if (pendingContinue && !uiState.isLoading) {
@@ -166,9 +184,25 @@ fun ConfirmationScreen(
                 text = "Complete Check-in",
                 enabled = acknowledged,
                 onClick = {
-                    uiState.checkIn?.id?.let {
-                        pendingContinue = true
-                        viewModel.confirmCheckIn(it)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        val isPermissionGranted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (!isPermissionGranted) {
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            uiState.checkIn?.id?.let {
+                                pendingContinue = true
+                                viewModel.confirmCheckIn(it)
+                            }
+                        }
+                    } else {
+                        uiState.checkIn?.id?.let {
+                            pendingContinue = true
+                            viewModel.confirmCheckIn(it)
+                        }
                     }
                 }
             )

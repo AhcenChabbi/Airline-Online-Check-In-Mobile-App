@@ -1,6 +1,12 @@
 package com.airline.checkin.core.di
 
+import com.airline.checkin.core.services.CheckInSessionStore
+import com.airline.checkin.domain.repository.AuthRepository
+import com.airline.checkin.domain.repository.BoardingPassRepository
+import com.airline.checkin.domain.repository.CheckInRepository
+import com.airline.checkin.domain.repository.FlightRepository
 import com.airline.checkin.domain.usecase.auth.LoginUseCase
+import com.airline.checkin.domain.usecase.auth.RegisterFcmTokenUseCase
 import com.airline.checkin.domain.usecase.auth.RegisterUseCase
 import com.airline.checkin.domain.usecase.boarding.DownloadBoardingPassPdfUseCase
 import com.airline.checkin.domain.usecase.boarding.GenerateBoardingPassUseCase
@@ -14,9 +20,6 @@ import com.airline.checkin.domain.usecase.checkin.SelectSeatUseCase
 import com.airline.checkin.domain.usecase.checkin.StartCheckInUseCase
 import com.airline.checkin.domain.usecase.checkin.SubmitSpecialRequestUseCase
 import com.airline.checkin.domain.usecase.flight.GetFlightByBookingUseCase
-import com.airline.checkin.domain.repository.BoardingPassRepository
-import com.airline.checkin.domain.repository.CheckInRepository
-import com.airline.checkin.domain.repository.FlightRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -89,6 +92,12 @@ object UseCaseModule {
 
     @Provides
     fun provideDownloadBoardingPassPdfUseCase(
-        boardingPassRepository: BoardingPassRepository
-    ): DownloadBoardingPassPdfUseCase = DownloadBoardingPassPdfUseCase(boardingPassRepository)
+        boardingPassRepository: BoardingPassRepository,
+        sessionStore: CheckInSessionStore
+    ): DownloadBoardingPassPdfUseCase = DownloadBoardingPassPdfUseCase(boardingPassRepository, sessionStore)
+
+    @Provides
+    fun provideRegisterFcmTokenUseCase(
+        authRepository: AuthRepository
+    ): RegisterFcmTokenUseCase = RegisterFcmTokenUseCase(authRepository)
 }
