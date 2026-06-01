@@ -43,7 +43,7 @@ constructor(
     override fun observeBoardingPass(checkinId: String): Flow<BoardingPass?> =
             boardingPassDao.getByCheckin(checkinId).map { entity -> entity?.toDomain() }
 
-    override suspend fun downloadBoardingPassPdf(checkinId: String): Result<File> =
+    override suspend fun downloadBoardingPassPdf(checkinId: String): Result<ByteArray> =
             runCatching {
                 try {
                     val responseBody = api.downloadBoardingPassPdf(checkinId)
@@ -59,7 +59,7 @@ constructor(
                         boardingPassDao.updatePdfUrl(cached.id, file.toURI().toString())
                     }
 
-                    file
+                    file.readBytes()
                 } catch (e: Exception) {
                     val file = File(context.cacheDir, "boarding-pass-$checkinId.pdf")
                     if (!file.exists()) {
@@ -78,7 +78,7 @@ constructor(
                         boardingPassDao.updatePdfUrl(cached.id, file.toURI().toString())
                     }
 
-                    file
+                    file.readBytes()
                 }
             }
 

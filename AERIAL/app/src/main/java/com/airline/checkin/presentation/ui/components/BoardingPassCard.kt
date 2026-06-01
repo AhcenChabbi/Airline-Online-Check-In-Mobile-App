@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AirplanemodeActive
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -135,7 +136,7 @@ fun BoardingPassCard(
                         )
                     } else {
                         Icon(
-                            imageVector = Icons.Rounded.QrCode2,
+                            imageVector = Icons.Rounded.QrCodeScanner,
                             contentDescription = "QR Code",
                             modifier = Modifier.size(120.dp),
                             tint = Color(0xFF051849)
