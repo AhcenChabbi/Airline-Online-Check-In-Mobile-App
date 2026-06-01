@@ -20,7 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-        private const val BASE_URL = "http://192.168.1.16:4004/"
+        private const val BASE_URL = "http://10.0.29.248:4004/"
 
     @Provides
     @Singleton

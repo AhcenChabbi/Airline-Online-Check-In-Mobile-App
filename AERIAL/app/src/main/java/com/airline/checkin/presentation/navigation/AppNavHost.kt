@@ -106,6 +106,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.PassportScan.route) {
             com.airline.checkin.presentation.ui.screens.checkin.PassportScanScreen(
                     onScanComplete = { navController.navigate(Screen.DetailsReview.route) },
+                    onSkip = { navController.navigate(Screen.DetailsReview.route) },
                     onBack = { navController.popBackStack() }
             )
         }

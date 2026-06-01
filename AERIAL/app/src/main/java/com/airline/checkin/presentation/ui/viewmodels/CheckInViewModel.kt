@@ -93,6 +93,23 @@ class CheckInViewModel @Inject constructor(
         }
     }
 
+    fun applyPassportScan(data: PassportScanData) {
+        val passenger = uiState.value.passenger ?: return
+
+        sessionStore.updatePassenger(
+            passenger.copy(
+                firstName = data.firstName?.takeIf { it.isNotBlank() } ?: passenger.firstName,
+                lastName = data.lastName?.takeIf { it.isNotBlank() } ?: passenger.lastName,
+                passportNumber = data.passportNumber.takeIf { it.isNotBlank() } ?: passenger.passportNumber,
+                passportExpiry = data.passportExpiry.takeIf { it.isNotBlank() } ?: passenger.passportExpiry,
+                passportMrz = data.passportMrz ?: passenger.passportMrz,
+                passportScanUrl = data.passportScanUrl ?: passenger.passportScanUrl,
+                nationality = data.nationality?.takeIf { it.isNotBlank() } ?: passenger.nationality,
+                dateOfBirth = data.dateOfBirth?.takeIf { it.isNotBlank() } ?: passenger.dateOfBirth
+            )
+        )
+    }
+
     fun loadSeatMap(checkinId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
