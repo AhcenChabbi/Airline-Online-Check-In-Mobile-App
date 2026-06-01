@@ -1,5 +1,6 @@
 package com.airline.checkin.presentation.ui.components
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,17 +11,24 @@ import androidx.compose.material.icons.rounded.AirplanemodeActive
 import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
 import com.airline.checkin.presentation.ui.theme.Spacing
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun BoardingPassCard(
@@ -31,10 +39,10 @@ fun BoardingPassCard(
     to: String,
     toCity: String,
     date: String,
-    gate: String,
     seat: String,
     boardingTime: String,
     bookingRef: String,
+    qrCodeUrl: String? = null,
     qrCodeData: String = "AERIAL-PASS-123",
     modifier: Modifier = Modifier
 ) {
@@ -78,15 +86,14 @@ fun BoardingPassCard(
             Column(modifier = Modifier.padding(Spacing.mdPlus)) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     InfoColumn("PASSENGER", passengerName, Modifier.weight(1.5f))
-                    InfoColumn("DATE", date, Modifier.weight(1f))
+                    InfoColumn("DATE", formatDate(date), Modifier.weight(1f))
                 }
                 
                 Spacer(modifier = Modifier.height(Spacing.lg))
                 
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    InfoColumn("GATE", gate, Modifier.weight(1f))
                     InfoColumn("SEAT", seat, Modifier.weight(1f))
-                    InfoColumn("BOARDING", boardingTime, Modifier.weight(1f))
+                    InfoColumn("BOARDING", formatTime(boardingTime), Modifier.weight(1f))
                 }
             }
 
@@ -100,6 +107,10 @@ fun BoardingPassCard(
                     .padding(Spacing.lg),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                        val qrBitmap = remember(qrCodeData) {
+                            runCatching { generateQrBitmap(qrCodeData) }.getOrNull()
+                        }
+
                 Box(
                     modifier = Modifier
                         .size(160.dp)
@@ -107,12 +118,20 @@ fun BoardingPassCard(
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.QrCode2,
-                        contentDescription = "QR Code",
-                        modifier = Modifier.size(120.dp),
-                        tint = Color(0xFF051849)
-                    )
+                            if (qrBitmap != null) {
+                                androidx.compose.foundation.Image(
+                                    bitmap = qrBitmap.asImageBitmap(),
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.QrCode2,
+                            contentDescription = "QR Code",
+                            modifier = Modifier.size(120.dp),
+                            tint = Color(0xFF051849)
+                        )
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(Spacing.md))
@@ -126,6 +145,33 @@ fun BoardingPassCard(
             }
         }
     }
+}
+
+private fun generateQrBitmap(data: String, size: Int = 512): Bitmap {
+    val matrix = MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, size, size)
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    for (x in 0 until size) {
+        for (y in 0 until size) {
+            bitmap.setPixel(x, y, if (matrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+        }
+    }
+    return bitmap
+}
+
+private fun formatDate(value: String?): String {
+    if (value.isNullOrBlank()) return "—"
+    return runCatching {
+        val instant = Instant.parse(value)
+        instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("EEE, dd MMM yyyy"))
+    }.getOrNull() ?: value
+}
+
+private fun formatTime(value: String?): String {
+    if (value.isNullOrBlank()) return "—"
+    return runCatching {
+        val instant = Instant.parse(value)
+        instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
+    }.getOrNull() ?: value
 }
 
 @Composable

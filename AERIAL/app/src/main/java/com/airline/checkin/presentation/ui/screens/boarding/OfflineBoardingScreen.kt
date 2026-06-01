@@ -87,10 +87,10 @@ fun OfflineBoardingScreen(
                     to = to,
                     toCity = uiState.flight?.destinationCity.orEmpty(),
                     date = date,
-                    gate = uiState.flight?.gate.orEmpty(),
                     seat = seatCode,
                     boardingTime = boardingTime,
                     bookingRef = bookingRef,
+                    qrCodeUrl = boardingPass?.qrCodeUrl,
                     qrCodeData = boardingPass?.qrCodeData.orEmpty()
                 )
 

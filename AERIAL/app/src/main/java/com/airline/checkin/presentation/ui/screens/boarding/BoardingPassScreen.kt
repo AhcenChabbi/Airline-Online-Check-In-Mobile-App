@@ -101,10 +101,10 @@ fun BoardingPassScreen(
                 to = to,
                 toCity = checkInState.flight?.destinationCity.orEmpty(),
                 date = date,
-                gate = checkInState.flight?.gate.orEmpty(),
                 seat = seatCode,
                 boardingTime = boardingTime,
                 bookingRef = bookingRef,
+                qrCodeUrl = boardingPass?.qrCodeUrl,
                 qrCodeData = boardingPass?.qrCodeData.orEmpty()
             )
 

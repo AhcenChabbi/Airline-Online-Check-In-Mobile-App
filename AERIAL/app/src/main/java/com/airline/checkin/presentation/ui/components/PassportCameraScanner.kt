@@ -88,19 +88,15 @@ fun PassportCameraScanner(
     var previewView by remember { mutableStateOf<PreviewView?>(null) }
     var isProcessing by remember { mutableStateOf(false) }
     var boundCameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
-    var showOcrDialog by remember { mutableStateOf(false) }
-    var rawOcrText by remember { mutableStateOf<String?>(null) }
-    var lastImagePath by remember { mutableStateOf<String?>(null) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
+            ) { uri: Uri? ->
         if (uri == null || isProcessing) return@rememberLauncherForActivityResult
         isProcessing = true
         scope.launch {
             try {
-                lastImagePath = uri.toString()
-                Log.d("PassportCamera", "Gallery image selected: $uri")
+                        Log.d("PassportCamera", "Gallery image selected: $uri")
                 val bitmap = withContext(Dispatchers.IO) {
                     context.contentResolver.openInputStream(uri)?.use { input ->
                         BitmapFactory.decodeStream(input)
@@ -115,10 +111,8 @@ fun PassportCameraScanner(
                 val (scanData, raw) = withContext(Dispatchers.Default) {
                     OcrHelper.extractPassportDataWithRaw(bitmap)
                 }
-                rawOcrText = raw
                 Log.d("PassportCamera", "OCR raw text length: ${raw.length}")
                 onCaptured(scanData)
-                showOcrDialog = true
             } catch (throwable: Throwable) {
                 Log.e("PassportCamera", "Gallery OCR failed", throwable)
                 onCaptured(null)
@@ -284,7 +278,6 @@ fun PassportCameraScanner(
                                     override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                                         scope.launch {
                                             try {
-                                                lastImagePath = outputFile.absolutePath
                                                 Log.d("PassportCamera", "Image saved to: ${outputFile.absolutePath}")
                                                 val bitmap = withContext(Dispatchers.IO) {
                                                     BitmapFactory.decodeFile(outputFile.absolutePath)
@@ -292,10 +285,8 @@ fun PassportCameraScanner(
                                                 val (scanData, raw) = withContext(Dispatchers.Default) {
                                                     OcrHelper.extractPassportDataWithRaw(bitmap)
                                                 }
-                                                rawOcrText = raw
                                                 Log.d("PassportCamera", "OCR raw text length: ${raw.length}")
                                                 onCaptured(scanData)
-                                                showOcrDialog = true
                                             } catch (throwable: Throwable) {
                                                 Log.e("PassportCamera", "OCR failed", throwable)
                                                 onCaptured(null)
@@ -342,36 +333,10 @@ fun PassportCameraScanner(
             ) {
                 Icon(imageVector = Icons.Rounded.CropFree, contentDescription = null)
                 Spacer(modifier = Modifier.size(8.dp))
-                Text("Load test image")
+                Text("Choose Image")
             }
         }
 
-        if (showOcrDialog) {
-            AlertDialog(
-                onDismissRequest = { showOcrDialog = false },
-                title = { Text("OCR output") },
-                text = {
-                    Column {
-                        Text(text = "Image: ${lastImagePath ?: "(unknown)"}")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = rawOcrText ?: "(no text)",
-                            maxLines = 20,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showOcrDialog = false }) {
-                        Text("Close")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showOcrDialog = false }) {
-                        Text("OK")
-                    }
-                }
-            )
-        }
+        // Debug dialog removed; OCR results are delivered via `onCaptured`
     }
 }
