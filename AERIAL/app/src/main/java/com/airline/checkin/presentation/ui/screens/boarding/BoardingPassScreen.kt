@@ -1,5 +1,12 @@
 package com.airline.checkin.presentation.ui.screens.boarding
 
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
@@ -16,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.airline.checkin.presentation.ui.components.*
@@ -25,6 +33,7 @@ import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
+import java.io.IOException
 
 @Composable
 fun BoardingPassScreen(
@@ -32,6 +41,7 @@ fun BoardingPassScreen(
     viewModel: BoardingPassViewModel = hiltViewModel(),
     checkInViewModel: CheckInViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val checkInState by checkInViewModel.uiState.collectAsStateWithLifecycle()
     val checkInId = checkInState.checkIn?.id
@@ -105,7 +115,7 @@ fun BoardingPassScreen(
                 boardingTime = boardingTime,
                 bookingRef = bookingRef,
                 qrCodeUrl = boardingPass?.qrCodeUrl,
-                qrCodeData = boardingPass?.qrCodeData.orEmpty()
+                qrCodeData = boardingPass?.qrCodeData
             )
 
             Spacer(modifier = Modifier.height(Spacing.xl))
@@ -115,7 +125,23 @@ fun BoardingPassScreen(
                 OutlinedButton(
                     onClick = {
                         if (checkInId != null) {
-                            viewModel.downloadPdf(checkInId) { }
+                            viewModel.downloadPdf(checkInId) { bytes ->
+                                val savedUri = saveBoardingPassPdf(context, checkInId, bytes)
+                                if (savedUri != null) {
+                                    Toast.makeText(
+                                        context,
+                                        "PDF saved to Downloads",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    openPdf(context, savedUri)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to save PDF",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
                         }
                     },
                     modifier = Modifier.weight(1f).height(56.dp),
@@ -138,5 +164,40 @@ fun BoardingPassScreen(
 
             Spacer(modifier = Modifier.height(Spacing.xl))
         }
+    }
+}
+
+private fun saveBoardingPassPdf(context: Context, checkInId: String, bytes: ByteArray): android.net.Uri? {
+    val fileName = "boarding-pass-$checkInId.pdf"
+    val resolver = context.contentResolver
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+        put(MediaStore.Downloads.MIME_TYPE, "application/pdf")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+    }
+
+    return try {
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            ?: return null
+        resolver.openOutputStream(uri)?.use { output ->
+            output.write(bytes)
+            output.flush()
+        } ?: return null
+        uri
+    } catch (e: IOException) {
+        null
+    }
+}
+
+private fun openPdf(context: Context, uri: android.net.Uri) {
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, "application/pdf")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    val chooser = Intent.createChooser(intent, "Open boarding pass PDF")
+    if (chooser.resolveActivity(context.packageManager) != null) {
+        context.startActivity(chooser)
     }
 }

@@ -2,6 +2,7 @@ package com.airline.checkin.presentation.ui.components
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,12 +20,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
+import coil.compose.AsyncImage
 import com.airline.checkin.presentation.ui.theme.Spacing
 import java.time.Instant
 import java.time.ZoneId
@@ -43,7 +46,7 @@ fun BoardingPassCard(
     boardingTime: String,
     bookingRef: String,
     qrCodeUrl: String? = null,
-    qrCodeData: String = "AERIAL-PASS-123",
+    qrCodeData: String? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -107,9 +110,10 @@ fun BoardingPassCard(
                     .padding(Spacing.lg),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                        val qrBitmap = remember(qrCodeData) {
-                            runCatching { generateQrBitmap(qrCodeData) }.getOrNull()
-                        }
+                val qrBitmap = remember(qrCodeData) {
+                    val payload = qrCodeData?.takeIf { it.isNotBlank() }
+                    payload?.let { runCatching { generateQrBitmap(it) }.getOrNull() }
+                }
 
                 Box(
                     modifier = Modifier
@@ -118,12 +122,19 @@ fun BoardingPassCard(
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                     contentAlignment = Alignment.Center
                 ) {
-                            if (qrBitmap != null) {
-                                androidx.compose.foundation.Image(
-                                    bitmap = qrBitmap.asImageBitmap(),
-                                    contentDescription = "QR Code",
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                    if (qrBitmap != null) {
+                        Image(
+                            bitmap = qrBitmap.asImageBitmap(),
+                            contentDescription = "QR Code",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else if (!qrCodeUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = qrCodeUrl,
+                            contentDescription = "QR Code",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
                     } else {
                         Icon(
                             imageVector = Icons.Rounded.QrCode2,

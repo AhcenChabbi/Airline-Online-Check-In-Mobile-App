@@ -56,13 +56,17 @@ export async function generateAndUploadQRCode(
  */
 export async function generateBoardingPassPdfBuffer(
   offlinePayload: any,
-  qrCodeUrl: string,
+  qrCodeData: string,
+  qrCodeUrl?: string | null,
 ): Promise<Buffer> {
-  const qrBuffer = qrCodeUrl.startsWith("data:")
-    ? Buffer.from(qrCodeUrl.split(",")[1] ?? "", "base64")
+  const qrSource = qrCodeUrl?.trim()
+    ? qrCodeUrl
+    : await QRCode.toDataURL(qrCodeData);
+  const qrBuffer = qrSource.startsWith("data:")
+    ? Buffer.from(qrSource.split(",")[1] ?? "", "base64")
     : Buffer.from(
         (
-          await axios.get(qrCodeUrl, { responseType: "arraybuffer" })
+          await axios.get(qrSource, { responseType: "arraybuffer" })
         ).data,
       );
 

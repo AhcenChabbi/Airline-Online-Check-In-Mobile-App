@@ -1,24 +1,29 @@
 import admin from "firebase-admin";
 import { existsSync, readFileSync } from "fs";
-import { FCM_SERVICE_ACCOUNT_PATH } from "../config/env.js";
+import { resolve } from "path";
+import { FCM_SERVICE_ACCOUNT_PATH, NODE_ENV } from "../config/env.js";
 
 // Initialize only once
 let fcmReady = false;
 
 if (!admin.apps.length) {
-  if (existsSync(FCM_SERVICE_ACCOUNT_PATH)) {
+  const resolvedServiceAccountPath = resolve(FCM_SERVICE_ACCOUNT_PATH);
+  if (existsSync(resolvedServiceAccountPath)) {
     const serviceAccount = JSON.parse(
-      readFileSync(FCM_SERVICE_ACCOUNT_PATH, "utf-8")
+      readFileSync(resolvedServiceAccountPath, "utf-8")
     );
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
     fcmReady = true;
+    console.log("[FCM] Firebase Admin initialized.");
   } else {
-    console.warn(
-      "[FCM] Service account file not found. Push notifications are disabled."
-    );
+    const message = `[FCM] Service account file not found at ${resolvedServiceAccountPath}.`;
+    if (NODE_ENV === "production") {
+      throw new Error(message);
+    }
+    console.warn(`${message} Push notifications are disabled.`);
   }
 }
 
