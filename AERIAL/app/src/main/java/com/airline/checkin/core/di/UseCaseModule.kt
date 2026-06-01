@@ -9,8 +9,8 @@ import com.airline.checkin.domain.usecase.auth.GetMeUseCase
 import com.airline.checkin.domain.usecase.auth.LoginUseCase
 import com.airline.checkin.domain.usecase.auth.RegisterFcmTokenUseCase
 import com.airline.checkin.domain.usecase.auth.RegisterUseCase
-import com.airline.checkin.domain.usecase.boarding.DownloadBoardingPassPdfUseCase
 import com.airline.checkin.domain.usecase.auth.SignInWithGoogleUseCase
+import com.airline.checkin.domain.usecase.boarding.DownloadBoardingPassPdfUseCase
 import com.airline.checkin.domain.usecase.boarding.GenerateBoardingPassUseCase
 import com.airline.checkin.domain.usecase.boarding.GetBoardingPassUseCase
 import com.airline.checkin.domain.usecase.boarding.GetOfflineBoardingPassUseCase
@@ -106,7 +106,8 @@ object UseCaseModule {
     fun provideDownloadBoardingPassPdfUseCase(
         boardingPassRepository: BoardingPassRepository,
         sessionStore: CheckInSessionStore
-    ): DownloadBoardingPassPdfUseCase = DownloadBoardingPassPdfUseCase(boardingPassRepository, sessionStore)
+    ): DownloadBoardingPassPdfUseCase =
+        DownloadBoardingPassPdfUseCase(boardingPassRepository, sessionStore)
 
     @Provides
     fun provideRegisterFcmTokenUseCase(

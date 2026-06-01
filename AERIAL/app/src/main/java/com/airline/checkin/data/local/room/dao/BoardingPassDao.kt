@@ -27,6 +27,12 @@ interface BoardingPassDao {
     @Query("SELECT * FROM boarding_passes WHERE passenger_id = :passengerId LIMIT 1")
     fun getByPassenger(passengerId: String): Flow<BoardingPassEntity?>
 
+    @Query("SELECT * FROM boarding_passes WHERE checkin_id = :checkinId LIMIT 1")
+    fun getByCheckin(checkinId: String): Flow<BoardingPassEntity?>
+
+    @Query("SELECT * FROM boarding_passes WHERE checkin_id = :checkinId LIMIT 1")
+    suspend fun getByCheckinOnce(checkinId: String): BoardingPassEntity?
+
     @Transaction
     @Query("SELECT * FROM boarding_passes WHERE passenger_id = :passengerId LIMIT 1")
     fun getWithDetails(passengerId: String): Flow<BoardingPassWithDetails?>

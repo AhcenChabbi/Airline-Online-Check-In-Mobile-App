@@ -4,8 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.airline.checkin.presentation.ui.screens.auth.LoginScreen
 import com.airline.checkin.presentation.ui.screens.auth.RegisterScreen
 import com.airline.checkin.presentation.ui.screens.auth.SplashScreen
@@ -143,7 +145,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Screen.Confirmation.route) {
             com.airline.checkin.presentation.ui.screens.checkin.ConfirmationScreen(
                     onContinue = {
-                        navController.navigate(Screen.BoardingPass.route) {
+                        navController.navigate(Screen.BoardingPass.createRoute("demo-checkin")) {
                             popUpTo(Screen.FlightLookup.route) { inclusive = false }
                         }
                     },
@@ -151,8 +153,13 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             )
         }
 
-        composable(Screen.BoardingPass.route) {
+        composable(
+                route = Screen.BoardingPass.route,
+                arguments = listOf(navArgument("checkinId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val checkinId = backStackEntry.arguments?.getString("checkinId") ?: ""
             com.airline.checkin.presentation.ui.screens.boarding.BoardingPassScreen(
+                    checkinId = checkinId,
                     onBack = {
                         navController.navigate(Screen.FlightLookup.route) {
                             popUpTo(Screen.BoardingPass.route) { inclusive = true }
@@ -161,8 +168,13 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             )
         }
 
-        composable(Screen.OfflineBoarding.route) {
+        composable(
+                route = Screen.OfflineBoarding.route,
+                arguments = listOf(navArgument("checkinId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val checkinId = backStackEntry.arguments?.getString("checkinId") ?: ""
             com.airline.checkin.presentation.ui.screens.boarding.OfflineBoardingScreen(
+                    checkinId = checkinId,
                     onBack = {
                         navController.navigate(Screen.FlightLookup.route) {
                             popUpTo(Screen.OfflineBoarding.route) { inclusive = true }

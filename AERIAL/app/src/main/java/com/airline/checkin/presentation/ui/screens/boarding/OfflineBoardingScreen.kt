@@ -5,38 +5,40 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.airline.checkin.presentation.ui.components.*
-import com.airline.checkin.presentation.ui.theme.Spacing
-import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airline.checkin.presentation.ui.components.*
+import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.BoardingPassViewModel
 
 @Composable
 fun OfflineBoardingScreen(
     onBack: () -> Unit,
-    viewModel: CheckInViewModel = hiltViewModel()
+    checkinId: String = "",
+    viewModel: BoardingPassViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(checkinId) {
+        viewModel.loadOfflineBoardingPass(checkinId)
+    }
+
     val boardingPass = uiState.boardingPass
     val passengerName = listOf(
         boardingPass?.offlinePayload?.passenger?.firstName,
         boardingPass?.offlinePayload?.passenger?.lastName
-    ).filter { !it.isNullOrBlank() }.joinToString(" ").ifBlank {
-        uiState.passenger?.name.orEmpty()
-    }
-    val flightNumber = boardingPass?.offlinePayload?.flight?.flightNumber ?: uiState.flight?.flightNumber.orEmpty()
-    val from = boardingPass?.offlinePayload?.flight?.origin ?: uiState.flight?.originIata.orEmpty()
-    val to = boardingPass?.offlinePayload?.flight?.destination ?: uiState.flight?.destinationIata.orEmpty()
-    val date = uiState.flight?.date.orEmpty()
-    val boardingTime = uiState.flight?.departureTime.orEmpty()
-    val seatCode = boardingPass?.offlinePayload?.seat?.seatCode ?: uiState.selectedSeat?.seatCode.orEmpty()
-    val bookingRef = uiState.bookingReference.ifBlank { uiState.checkIn?.bookingId.orEmpty() }
+    ).filter { !it.isNullOrBlank() }.joinToString(" ")
+    val flightNumber = boardingPass?.offlinePayload?.flight?.flightNumber.orEmpty()
+    val from = boardingPass?.offlinePayload?.flight?.origin.orEmpty()
+    val to = boardingPass?.offlinePayload?.flight?.destination.orEmpty()
+    val departureAt = boardingPass?.offlinePayload?.flight?.departureAt.orEmpty()
+    val seatCode = boardingPass?.offlinePayload?.seat?.seatCode.orEmpty()
+
     Scaffold(
         topBar = {
             AirlineTopBar(
@@ -61,7 +63,6 @@ fun OfflineBoardingScreen(
             ) {
                 Spacer(modifier = Modifier.height(Spacing.xl))
 
-                // 1. Page Header
                 Text(
                     text = "Offline Boarding Pass",
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
@@ -78,25 +79,31 @@ fun OfflineBoardingScreen(
 
                 Spacer(modifier = Modifier.height(Spacing.xl))
 
-                // 2. The Boarding Pass Card
-                BoardingPassCard(
-                    passengerName = passengerName,
-                    flightNumber = flightNumber,
-                    from = from,
-                    fromCity = uiState.flight?.originCity.orEmpty(),
-                    to = to,
-                    toCity = uiState.flight?.destinationCity.orEmpty(),
-                    date = date,
-                    seat = seatCode,
-                    boardingTime = boardingTime,
-                    bookingRef = bookingRef,
-                    qrCodeUrl = boardingPass?.qrCodeUrl,
-                    qrCodeData = boardingPass?.qrCodeData.orEmpty()
-                )
+                if (boardingPass != null) {
+                    BoardingPassCard(
+                        passengerName = passengerName,
+                        flightNumber = flightNumber,
+                        from = from,
+                        fromCity = "",
+                        to = to,
+                        toCity = "",
+                        date = departureAt,
+                        seat = seatCode,
+                        boardingTime = departureAt,
+                        bookingRef = boardingPass.checkinId,
+                        qrCodeUrl = boardingPass.qrCodeUrl,
+                        qrCodeData = boardingPass.qrCodeData
+                    )
+                } else {
+                    Text(
+                        text = "No cached boarding pass found.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(Spacing.xxl))
 
-                // 3. Actions
                 ConfirmButton(
                     text = "Back to My Flights",
                     onClick = onBack

@@ -19,24 +19,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
 import com.airline.checkin.presentation.ui.viewmodels.BoardingPassViewModel
 import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.LaunchedEffect
 import java.io.IOException
 
 @Composable
 fun BoardingPassScreen(
+    checkinId: String? = null,
     onBack: () -> Unit,
     viewModel: BoardingPassViewModel = hiltViewModel(),
     checkInViewModel: CheckInViewModel = hiltViewModel()
@@ -44,11 +44,11 @@ fun BoardingPassScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val checkInState by checkInViewModel.uiState.collectAsStateWithLifecycle()
-    val checkInId = checkInState.checkIn?.id
+    val resolvedCheckInId = checkinId?.takeIf { it.isNotBlank() } ?: checkInState.checkIn?.id
 
-    LaunchedEffect(checkInId) {
-        if (checkInId != null) {
-            viewModel.loadBoardingPass(checkInId)
+    LaunchedEffect(resolvedCheckInId) {
+        if (resolvedCheckInId != null) {
+            viewModel.loadBoardingPass(resolvedCheckInId)
         }
     }
 
@@ -59,13 +59,20 @@ fun BoardingPassScreen(
     ).filter { !it.isNullOrBlank() }.joinToString(" ").ifBlank {
         checkInState.passenger?.name.orEmpty()
     }
-    val flightNumber = boardingPass?.offlinePayload?.flight?.flightNumber ?: checkInState.flight?.flightNumber.orEmpty()
-    val from = boardingPass?.offlinePayload?.flight?.origin ?: checkInState.flight?.originIata.orEmpty()
-    val to = boardingPass?.offlinePayload?.flight?.destination ?: checkInState.flight?.destinationIata.orEmpty()
+    val flightNumber = boardingPass?.offlinePayload?.flight?.flightNumber
+        ?: checkInState.flight?.flightNumber.orEmpty()
+    val from = boardingPass?.offlinePayload?.flight?.origin
+        ?: checkInState.flight?.originIata.orEmpty()
+    val to = boardingPass?.offlinePayload?.flight?.destination
+        ?: checkInState.flight?.destinationIata.orEmpty()
     val date = checkInState.flight?.date.orEmpty()
     val boardingTime = checkInState.flight?.departureTime.orEmpty()
-    val seatCode = boardingPass?.offlinePayload?.seat?.seatCode ?: checkInState.selectedSeat?.seatCode.orEmpty()
-    val bookingRef = checkInState.bookingReference.ifBlank { checkInState.checkIn?.bookingId.orEmpty() }
+    val seatCode = boardingPass?.offlinePayload?.seat?.seatCode
+        ?: checkInState.selectedSeat?.seatCode.orEmpty()
+    val bookingRef = checkInState.bookingReference.ifBlank {
+        checkInState.checkIn?.bookingId.orEmpty()
+    }
+
     Scaffold(
         topBar = {
             AirlineTopBar(
@@ -76,93 +83,130 @@ fun BoardingPassScreen(
         containerColor = Color(0xFFF9FAFC),
         contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Top)
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.gutter)
-        ) {
-            Spacer(modifier = Modifier.height(Spacing.xl))
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.gutter)
+            ) {
+                // Offline banner (from incoming branch)
+                if (uiState.isOffline) {
+                    OfflineBanner(modifier = Modifier.padding(top = Spacing.md))
+                }
 
-            // 1. Page Header
-            Text(
-                text = "Your Boarding Pass",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary
-            )
+                // Error banner (from incoming branch)
+                val errorMsg = uiState.error
+                if (errorMsg != null) {
+                    ErrorBanner(
+                        message = errorMsg,
+                        onDismiss = { /* no clearError in VM, error clears on next load */ },
+                        onRetry = if (!resolvedCheckInId.isNullOrBlank()) {
+                            { viewModel.loadBoardingPass(resolvedCheckInId) }
+                        } else null,
+                        modifier = Modifier.padding(top = Spacing.md)
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(Spacing.sm))
+                Spacer(modifier = Modifier.height(Spacing.xl))
 
-            Text(
-                text = "Present this digital pass at the boarding gate.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Text(
+                    text = "Your Boarding Pass",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary
+                )
 
-            Spacer(modifier = Modifier.height(Spacing.xl))
+                Spacer(modifier = Modifier.height(Spacing.sm))
 
-            // 2. The Boarding Pass Card
-            BoardingPassCard(
-                passengerName = passengerName,
-                flightNumber = flightNumber,
-                from = from,
-                fromCity = checkInState.flight?.originCity.orEmpty(),
-                to = to,
-                toCity = checkInState.flight?.destinationCity.orEmpty(),
-                date = date,
-                seat = seatCode,
-                boardingTime = boardingTime,
-                bookingRef = bookingRef,
-                qrCodeUrl = boardingPass?.qrCodeUrl,
-                qrCodeData = boardingPass?.qrCodeData
-            )
+                Text(
+                    text = "Present this digital pass at the boarding gate.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-            Spacer(modifier = Modifier.height(Spacing.xl))
+                Spacer(modifier = Modifier.height(Spacing.xl))
 
-            // 3. Actions
-            Row(modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(
-                    onClick = {
-                        if (checkInId != null) {
-                            viewModel.downloadPdf(checkInId) { bytes ->
-                                val savedUri = saveBoardingPassPdf(context, checkInId, bytes)
-                                if (savedUri != null) {
-                                    Toast.makeText(
-                                        context,
-                                        "PDF saved to Downloads",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    openPdf(context, savedUri)
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Failed to save PDF",
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                if (boardingPass != null) {
+                    BoardingPassCard(
+                        passengerName = passengerName,
+                        flightNumber = flightNumber,
+                        from = from,
+                        fromCity = checkInState.flight?.originCity.orEmpty(),
+                        to = to,
+                        toCity = checkInState.flight?.destinationCity.orEmpty(),
+                        date = date,
+                        seat = seatCode,
+                        boardingTime = boardingTime,
+                        bookingRef = bookingRef,
+                        qrCodeUrl = boardingPass.qrCodeUrl,
+                        qrCodeData = boardingPass.qrCodeData
+                    )
+                } else {
+                    Text(
+                        text = "Boarding pass unavailable. Complete check-in to generate it.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(Spacing.xl))
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    // Dynamic label from incoming branch
+                    val pdfLabel = if (uiState.pdfPath != null) "PDF Saved" else "PDF Pass"
+                    OutlinedButton(
+                        onClick = {
+                            if (resolvedCheckInId != null) {
+                                viewModel.downloadPdf(resolvedCheckInId) { bytes ->
+                                    val savedUri = saveBoardingPassPdf(context, resolvedCheckInId, bytes)
+                                    if (savedUri != null) {
+                                        Toast.makeText(
+                                            context,
+                                            "PDF saved to Downloads",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        openPdf(context, savedUri)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Failed to save PDF",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
                                 }
                             }
-                        }
-                    },
-                    modifier = Modifier.weight(1f).height(56.dp),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(Icons.Rounded.FileDownload, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("PDF Pass", fontWeight = FontWeight.Bold)
+                        },
+                        enabled = !resolvedCheckInId.isNullOrBlank(),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Icon(Icons.Rounded.FileDownload, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(pdfLabel, fontWeight = FontWeight.Bold)
+                    }
+
+                    Spacer(modifier = Modifier.width(Spacing.md))
+
+                    ConfirmButton(
+                        text = "Done",
+                        onClick = onBack,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-                
-                Spacer(modifier = Modifier.width(Spacing.md))
-                
-                ConfirmButton(
-                    text = "Done",
-                    onClick = onBack,
-                    modifier = Modifier.weight(1f)
-                )
+
+                Spacer(modifier = Modifier.height(Spacing.xl))
             }
 
-            Spacer(modifier = Modifier.height(Spacing.xl))
+            // Loading overlay from incoming branch
+            if (uiState.isLoading) {
+                LoadingOverlay()
+            }
         }
     }
 }
