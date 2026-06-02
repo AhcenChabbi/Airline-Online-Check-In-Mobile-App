@@ -9,14 +9,14 @@ object FlightMapper {
                     id = dto.id ?: "",
                     flightNumber = dto.flightNumber,
                     airlineCode = dto.airlineCode,
-                    airlineName = "AERIAL", // Default or derived
+                    airlineName = "AERIAL",
                     originIata = dto.originIata,
-                    originCity = "Origin City", // Would be mapped from IATA in a real app
+                    originCity = "Origin City",
                     destinationIata = dto.destIata,
                     destinationCity = "Dest City",
                     departureTime = dto.departureAt,
                     arrivalTime = dto.arrivalAt,
-                    date = "Oct 24, 2023", // Derived from departureAt
+                    date = "June 02, 2026",
                     aircraftType = dto.aircraftType ?: "A320",
                     totalRows = dto.totalRows ?: 30,
                     seatsPerRow = dto.seatsPerRow ?: 6,
