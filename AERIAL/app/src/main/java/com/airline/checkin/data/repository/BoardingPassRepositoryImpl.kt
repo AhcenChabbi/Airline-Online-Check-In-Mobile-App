@@ -1,6 +1,7 @@
 package com.airline.checkin.data.repository
 
 import android.content.Context
+import com.airline.checkin.core.utils.LocalPdfGenerator
 import com.airline.checkin.data.local.mapper.EntityMapper.toDomain
 import com.airline.checkin.data.local.mapper.EntityMapper.toEntity
 import com.airline.checkin.data.local.room.dao.BoardingPassDao
@@ -30,6 +31,7 @@ constructor(
         private val seatDao: SeatDao,
         @ApplicationContext private val context: Context
 ) : BoardingPassRepository {
+
     override suspend fun getBoardingPass(checkinId: String): Result<BoardingPass> =
             runCatching {
                 try {
@@ -39,15 +41,9 @@ constructor(
                     boardingPassDao.save(boardingPass.toEntity())
                     boardingPass
                 } catch (e: Exception) {
+                    // Try loading from local cache before propagating the error
                     val cached = boardingPassDao.getByCheckinOnce(checkinId)
-                    if (cached != null) {
-                        cached.toDomain()
-                    } else {
-                        val mockPass = createMockBoardingPass(checkinId)
-                        saveBoardingPassDependencies(mockPass)
-                        boardingPassDao.save(mockPass.toEntity())
-                        mockPass
-                    }
+                    cached?.toDomain() ?: throw e
                 }
             }
 
@@ -97,7 +93,7 @@ constructor(
 
         // 4. Save Seat Entity
         val seatCode = payload.seat.seatCode
-        val rowNumber = seatCode.filter { it.isDigit() }.toIntOrNull() ?: 12
+        val rowNumber = seatCode.filter { it.isDigit() }.toIntOrNull() ?: 1
         val columnLetter = seatCode.filter { it.isLetter() }
         val seatEntity = com.airline.checkin.data.local.room.entity.SeatEntity(
                 id = boardingPass.seatId,
@@ -136,61 +132,37 @@ constructor(
 
                     file.readBytes()
                 } catch (e: Exception) {
-                    val file = File(context.cacheDir, "boarding-pass-$checkinId.pdf")
-                    if (!file.exists()) {
-                        file.writeText(
-                                "AERIAL DIGITAL BOARDING PASS\n" +
-                                "============================\n" +
-                                "Passenger: Alex Mercer\n" +
-                                "Flight: AF1234  CDG -> ALG\n" +
-                                "Seat: 12A\n" +
-                                "Check-in ID: $checkinId\n"
-                        )
-                    }
-
+                    // Remote PDF failed — generate locally from the cached boarding pass data
                     val cached = boardingPassDao.getByCheckinOnce(checkinId)
-                    if (cached != null) {
-                        boardingPassDao.updatePdfUrl(cached.id, file.toURI().toString())
-                    }
+                            ?: throw Exception("No boarding pass data available to generate PDF.")
 
-                    file.readBytes()
+                    val boardingPass = cached.toDomain()
+                    val payload = boardingPass.offlinePayload
+
+                    val passengerName = listOf(
+                            payload?.passenger?.firstName,
+                            payload?.passenger?.lastName
+                    ).filter { !it.isNullOrBlank() }.joinToString(" ").ifBlank { "Passenger" }
+
+                    val pdfBytes = LocalPdfGenerator.generateBoardingPassPdf(
+                            passengerName = passengerName,
+                            flightNumber = payload?.flight?.flightNumber ?: "",
+                            from = payload?.flight?.origin ?: "",
+                            fromCity = payload?.flight?.origin ?: "",
+                            to = payload?.flight?.destination ?: "",
+                            toCity = payload?.flight?.destination ?: "",
+                            date = payload?.flight?.departureAt ?: "",
+                            seat = payload?.seat?.seatCode ?: "",
+                            boardingTime = payload?.flight?.departureAt ?: "",
+                            bookingRef = checkinId.take(6).uppercase(),
+                            qrCodeData = boardingPass.qrCodeData
+                    )
+
+                    val file = File(context.cacheDir, "boarding-pass-$checkinId.pdf")
+                    file.writeBytes(pdfBytes)
+                    boardingPassDao.updatePdfUrl(cached.id, file.toURI().toString())
+
+                    pdfBytes
                 }
             }
-
-    private fun createMockBoardingPass(checkinId: String): BoardingPass {
-        val now = java.time.Instant.now()
-        val departure = now.plus(java.time.Duration.ofHours(2))
-        val arrival = now.plus(java.time.Duration.ofHours(4))
-        return BoardingPass(
-                id = "mock-bp-$checkinId",
-                checkinId = checkinId,
-                passengerId = "mock-passenger-id",
-                seatId = "mock-seat-id",
-                qrCodeData = "AERIAL-PASS-$checkinId",
-                qrCodeUrl = null,
-                pdfUrl = null,
-                isSynced = true,
-                syncedAt = now.toString(),
-                issuedAt = now.toString(),
-                expiresAt = arrival.plus(java.time.Duration.ofHours(2)).toString(),
-                offlinePayload = com.airline.checkin.domain.model.BoardingPassOfflinePayload(
-                        passenger = com.airline.checkin.domain.model.BoardingPassPassengerPayload(
-                                firstName = "Alex",
-                                lastName = "Mercer",
-                                passportNumber = "P987654321"
-                        ),
-                        flight = com.airline.checkin.domain.model.BoardingPassFlightPayload(
-                                flightNumber = "AF1234",
-                                origin = "CDG",
-                                destination = "ALG",
-                                departureAt = departure.toString(),
-                                arrivalAt = arrival.toString()
-                        ),
-                        seat = com.airline.checkin.domain.model.BoardingPassSeatPayload(
-                                seatCode = "12A",
-                                seatClass = "ECONOMY"
-                        )
-                )
-        )
-    }
 }

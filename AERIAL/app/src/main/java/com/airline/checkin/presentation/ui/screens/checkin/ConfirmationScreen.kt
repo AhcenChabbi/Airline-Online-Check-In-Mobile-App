@@ -34,7 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun ConfirmationScreen(
-    onContinue: () -> Unit,
+    onContinue: (String) -> Unit,
     onBack: () -> Unit,
     viewModel: CheckInViewModel = hiltViewModel()
 ) {
@@ -66,7 +66,7 @@ fun ConfirmationScreen(
     LaunchedEffect(uiState.isLoading, uiState.error, uiState.boardingPass) {
         if (pendingContinue && !uiState.isLoading) {
             if (uiState.error == null && uiState.boardingPass != null) {
-                onContinue()
+                onContinue(uiState.boardingPass?.checkinId ?: uiState.checkIn?.id.orEmpty())
             }
             pendingContinue = false
         }

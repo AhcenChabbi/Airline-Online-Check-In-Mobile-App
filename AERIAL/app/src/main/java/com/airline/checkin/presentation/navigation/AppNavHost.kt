@@ -144,8 +144,8 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
 
         composable(Screen.Confirmation.route) {
             com.airline.checkin.presentation.ui.screens.checkin.ConfirmationScreen(
-                    onContinue = {
-                        navController.navigate(Screen.BoardingPass.createRoute("demo-checkin")) {
+                    onContinue = { checkinId ->
+                        navController.navigate(Screen.BoardingPass.createRoute(checkinId)) {
                             popUpTo(Screen.FlightLookup.route) { inclusive = false }
                         }
                     },

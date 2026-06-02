@@ -33,6 +33,6 @@ interface AuthApi {
     @GET("api/users/me")
     suspend fun getMe(): UserMeResponseDto
 
-    @POST("api/auth/fcm-token")
+    @POST("api/users/fcm-token")
     suspend fun registerFcmToken(@Body body: FcmTokenRequestDto): MessageResponseDto
 }
