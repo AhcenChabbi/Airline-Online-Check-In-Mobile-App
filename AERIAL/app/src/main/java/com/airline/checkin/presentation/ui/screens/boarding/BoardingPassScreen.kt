@@ -44,7 +44,9 @@ fun BoardingPassScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val checkInState by checkInViewModel.uiState.collectAsStateWithLifecycle()
-    val resolvedCheckInId = checkinId?.takeIf { it.isNotBlank() } ?: checkInState.checkIn?.id
+    val resolvedCheckInId = checkinId?.takeIf { it.isNotBlank() && it != "{checkinId}" }
+        ?: checkInState.boardingPass?.checkinId
+        ?: checkInState.checkIn?.id
 
     LaunchedEffect(resolvedCheckInId) {
         if (resolvedCheckInId != null) {
