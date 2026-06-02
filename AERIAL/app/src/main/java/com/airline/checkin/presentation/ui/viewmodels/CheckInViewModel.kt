@@ -1,7 +1,208 @@
 package com.airline.checkin.presentation.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.airline.checkin.core.services.CheckInSessionStore
+import com.airline.checkin.domain.model.Baggage
+import com.airline.checkin.domain.model.PassportScanData
+import com.airline.checkin.domain.model.SpecialRequest
+import com.airline.checkin.domain.usecase.boarding.GenerateBoardingPassUseCase
+import com.airline.checkin.domain.usecase.checkin.ConfirmDetailsUseCase
+import com.airline.checkin.domain.usecase.checkin.DeclareBaggageUseCase
+import com.airline.checkin.domain.usecase.checkin.GetSeatMapUseCase
+import com.airline.checkin.domain.usecase.checkin.ScanPassportUseCase
+import com.airline.checkin.domain.usecase.checkin.SelectSeatUseCase
+import com.airline.checkin.domain.usecase.checkin.StartCheckInUseCase
+import com.airline.checkin.domain.usecase.checkin.SubmitSpecialRequestUseCase
+import com.airline.checkin.domain.usecase.auth.RegisterFcmTokenUseCase
+import com.airline.checkin.presentation.ui.state.CheckInUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
-class CheckInViewModel : ViewModel() {
-    // TODO: Implement check-in logic
+@HiltViewModel
+class CheckInViewModel @Inject constructor(
+    private val startCheckIn: StartCheckInUseCase,
+    private val scanPassport: ScanPassportUseCase,
+    private val confirmDetails: ConfirmDetailsUseCase,
+    private val getSeatMap: GetSeatMapUseCase,
+    private val selectSeatUseCase: SelectSeatUseCase,
+    private val declareBaggageUseCase: DeclareBaggageUseCase,
+    private val submitSpecialRequestUseCase: SubmitSpecialRequestUseCase,
+    private val generateBoardingPass: GenerateBoardingPassUseCase,
+    private val registerFcmTokenUseCase: RegisterFcmTokenUseCase,
+    private val sessionStore: CheckInSessionStore
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(CheckInUiState())
+    val uiState: StateFlow<CheckInUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            sessionStore.session.collect { session ->
+                _uiState.update {
+                    it.copy(
+                        bookingReference = session.booking?.bookingReference.orEmpty(),
+                        booking = session.booking,
+                        flight = session.flight,
+                        passenger = session.passenger,
+                        checkIn = session.checkIn,
+                        seatMap = session.seatMap,
+                        selectedSeat = session.selectedSeat,
+                        baggage = session.baggage,
+                        specialRequests = session.specialRequests,
+                        boardingPass = session.boardingPass
+                    )
+                }
+            }
+        }
+    }
+
+    fun initiateCheckIn(bookingId: String, passengerId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            startCheckIn(bookingId, passengerId)
+                .onSuccess { checkIn ->
+                    sessionStore.updateCheckIn(checkIn)
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun submitPassportAndConfirm(checkinId: String, data: PassportScanData) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            scanPassport(checkinId, data)
+                .onSuccess {
+                    confirmDetails(checkinId)
+                        .onSuccess { (passenger, flight) ->
+                            sessionStore.updatePassenger(passenger)
+                            sessionStore.updateFlight(flight)
+                            _uiState.update { it.copy(isLoading = false) }
+                        }
+                        .onFailure { error ->
+                            _uiState.update { it.copy(isLoading = false, error = error.message) }
+                        }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun applyPassportScan(data: PassportScanData) {
+        val passenger = uiState.value.passenger ?: return
+
+        sessionStore.updatePassenger(
+            passenger.copy(
+                firstName = data.firstName?.takeIf { it.isNotBlank() } ?: passenger.firstName,
+                lastName = data.lastName?.takeIf { it.isNotBlank() } ?: passenger.lastName,
+                passportNumber = data.passportNumber.takeIf { it.isNotBlank() } ?: passenger.passportNumber,
+                passportExpiry = data.passportExpiry.takeIf { it.isNotBlank() } ?: passenger.passportExpiry,
+                passportMrz = data.passportMrz ?: passenger.passportMrz,
+                passportScanUrl = data.passportScanUrl ?: passenger.passportScanUrl,
+                nationality = data.nationality?.takeIf { it.isNotBlank() } ?: passenger.nationality,
+                dateOfBirth = data.dateOfBirth?.takeIf { it.isNotBlank() } ?: passenger.dateOfBirth
+            )
+        )
+    }
+
+    fun loadSeatMap(checkinId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            getSeatMap(checkinId)
+                .onSuccess { seats ->
+                    sessionStore.updateSeatMap(seats)
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun selectSeat(checkinId: String, seatId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            selectSeatUseCase(checkinId, seatId)
+                .onSuccess { seat ->
+                    sessionStore.updateSelectedSeat(seat)
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun declareBaggage(checkinId: String, bags: List<Baggage>) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            declareBaggageUseCase(checkinId, bags)
+                .onSuccess {
+                    sessionStore.updateBaggage(bags)
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun submitSpecialRequests(checkinId: String, requests: List<SpecialRequest>) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            submitSpecialRequestUseCase(checkinId, requests)
+                .onSuccess {
+                    sessionStore.updateSpecialRequests(requests)
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun confirmCheckIn(checkinId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            generateBoardingPass(checkinId)
+                .onSuccess { boardingPass ->
+                    sessionStore.updateBoardingPass(boardingPass)
+
+                    // Fetch and register FCM token asynchronously
+                    viewModelScope.launch {
+                        var fcmToken = "mock_fcm_token_fallback"
+                        try {
+                            fcmToken = com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
+                        } catch (e: Exception) {
+                            android.util.Log.w("CheckInViewModel", "Failed to retrieve real FCM token, using fallback", e)
+                        }
+                        registerFcmTokenUseCase(fcmToken)
+                            .onSuccess {
+                                android.util.Log.d("CheckInViewModel", "Successfully registered FCM token: $fcmToken")
+                            }
+                            .onFailure { error ->
+                                android.util.Log.e("CheckInViewModel", "Failed to register FCM token: ${error.message}")
+                            }
+                    }
+
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
 }

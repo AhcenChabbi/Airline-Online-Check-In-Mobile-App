@@ -17,29 +17,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airline.checkin.domain.model.Baggage
 import com.airline.checkin.presentation.ui.components.*
-import com.airline.checkin.presentation.ui.theme.Spacing
 import com.airline.checkin.presentation.ui.theme.Gold
+import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
 
 /**
  * Maps to backend Baggage model:
  * BagType: CARRY_ON, CHECKED, OVERSIZED, FRAGILE, SPORTS_EQUIPMENT
  */
 @Composable
-fun BaggageDeclarationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
+fun BaggageDeclarationScreen(
+    onContinue: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkInId = uiState.checkIn?.id
     var carryOnCount by remember { mutableIntStateOf(1) }
     var checkedCount by remember { mutableIntStateOf(0) }
     var oversizedCount by remember { mutableIntStateOf(0) }
     var fragileCount by remember { mutableIntStateOf(0) }
     var sportsCount by remember { mutableIntStateOf(0) }
-    
+    var pendingContinue by remember { mutableStateOf(false) }
+
     val checkedBagPrice = 45.0
     val specialBagPrice = 65.0
-    
+
     val totalExtra = (if (checkedCount > 1) (checkedCount - 1) * checkedBagPrice else 0.0) +
-                     (oversizedCount * specialBagPrice) +
-                     (fragileCount * 20.0) +
-                     (sportsCount * specialBagPrice)
+        (oversizedCount * specialBagPrice) +
+        (fragileCount * 20.0) +
+        (sportsCount * specialBagPrice)
+
+    LaunchedEffect(uiState.isLoading, uiState.error) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null) {
+                onContinue()
+            }
+            pendingContinue = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -54,7 +74,19 @@ fun BaggageDeclarationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
         bottomBar = {
             BaggagePriceBar(
                 totalPrice = totalExtra,
-                onNext = onContinue
+                onNext = {
+                    if (checkInId != null) {
+                        val bags = buildList {
+                            if (carryOnCount > 0) add(Baggage(bagType = "CARRY_ON", quantity = carryOnCount))
+                            if (checkedCount > 0) add(Baggage(bagType = "CHECKED", quantity = checkedCount))
+                            if (oversizedCount > 0) add(Baggage(bagType = "OVERSIZED", quantity = oversizedCount))
+                            if (fragileCount > 0) add(Baggage(bagType = "FRAGILE", quantity = fragileCount))
+                            if (sportsCount > 0) add(Baggage(bagType = "SPORTS_EQUIPMENT", quantity = sportsCount))
+                        }
+                        pendingContinue = true
+                        viewModel.declareBaggage(checkInId, bags)
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -66,6 +98,14 @@ fun BaggageDeclarationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
                 .padding(horizontal = Spacing.gutter)
         ) {
             Spacer(modifier = Modifier.height(Spacing.md))
+
+            if (uiState.error != null) {
+                ErrorBanner(
+                    message = uiState.error ?: "Unable to save baggage details.",
+                    onDismiss = { viewModel.clearError() }
+                )
+                Spacer(modifier = Modifier.height(Spacing.md))
+            }
 
             // 1. Progress Bar
             StepProgressBar(currentStep = 3, totalSteps = 5)
@@ -81,7 +121,7 @@ fun BaggageDeclarationScreen(onContinue: () -> Unit, onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(Spacing.lg))
 
             // 2. Baggage Items (Mapped to BagType enum)
-            
+
             // CARRY_ON
             BaggageItemCard(
                 title = "Cabin baggage",

@@ -15,12 +15,12 @@ object BookingMapper {
                         status = dto.status,
                         isCheckinOpen = dto.isCheckinOpen,
                         flight = dto.flight.toDomain(),
-                        passengers = dto.passengers.map { it.toDomain() }
+                        passengers = dto.passengers.map { it.toDomain(dto.bookingId) }
                 )
 
         private fun FlightSummaryDto.toDomain(): Flight =
                 Flight(
-                        id = "",
+                        id = flightNumber,
                         flightNumber = flightNumber,
                         airlineCode = airlineCode,
                         airlineName = "AERIAL",
@@ -37,9 +37,10 @@ object BookingMapper {
                         status = status
                 )
 
-        private fun PassengerSummaryDto.toDomain(): Passenger =
+        private fun PassengerSummaryDto.toDomain(bookingId: String): Passenger =
                 Passenger(
                         id = id,
+                        bookingId = bookingId,
                         firstName = firstName,
                         lastName = lastName,
                         passengerType = passengerType,

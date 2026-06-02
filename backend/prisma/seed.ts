@@ -125,46 +125,12 @@ const seed = async () => {
       bookingId: booking.id,
       passengerId: primaryPassenger.id,
       status: CheckInStatus.IN_PROGRESS,
-      currentStep: CheckInStep.SEAT_SELECTION,
+      currentStep: CheckInStep.PASSPORT_SCAN,
       ipAddress: "192.168.1.12",
     },
   });
 
-  const seat = await prisma.seat.findFirst({
-    where: { flightId: flight.id, seatCode: "12A" },
-  });
-
-  if (!seat) {
-    throw new Error("Seed failed to find seat 12A");
-  }
-
-  await prisma.seat.update({
-    where: { id: seat.id },
-    data: {
-      reservedByCheckinId: checkin.id,
-      reservedAt: new Date(),
-    },
-  });
-
-  await prisma.boardingPass.create({
-    data: {
-      checkinId: checkin.id,
-      passengerId: primaryPassenger.id,
-      seatId: seat.id,
-      qrCodeData: "QR-AF1234-12A-0001",
-      qrCodeUrl: "https://cdn.example.com/qr/AF1234-12A.png",
-      pdfUrl: "https://cdn.example.com/passes/AF1234-12A.pdf",
-      isSynced: true,
-      syncedAt: new Date(),
-      issuedAt: new Date(),
-      expiresAt: arrivalAt,
-      offlinePayload: {
-        flightNumber: flight.flightNumber,
-        seatCode: seat.seatCode,
-        passengerName: `${primaryPassenger.firstName} ${primaryPassenger.lastName}`,
-      },
-    },
-  });
+    // Seat selection and boarding pass generation happen during check-in flow
 
   await prisma.baggage.create({
     data: {

@@ -13,8 +13,12 @@ sealed class Screen(val route: String) {
     object BaggageDeclaration : Screen("baggage_declaration")
     object SpecialRequests : Screen("special_requests")
     object Confirmation : Screen("confirmation")
-    object BoardingPass : Screen("boarding_pass")
-    object OfflineBoarding : Screen("offline_boarding")
+    object BoardingPass : Screen("boarding_pass/{checkinId}") {
+        fun createRoute(checkinId: String) = "boarding_pass/$checkinId"
+    }
+    object OfflineBoarding : Screen("offline_boarding/{checkinId}") {
+        fun createRoute(checkinId: String) = "offline_boarding/$checkinId"
+    }
     object Profile : Screen("profile")
     object Notifications : Screen("notifications")
 

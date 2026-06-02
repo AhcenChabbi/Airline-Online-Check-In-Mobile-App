@@ -1,7 +1,8 @@
 package com.airline.checkin.data.repository
 
-import com.airline.checkin.core.security.TokenManager
 import com.airline.checkin.data.remote.api.AuthApi
+import com.airline.checkin.data.remote.dto.FcmTokenRequestDto
+import com.airline.checkin.core.security.TokenManager
 import com.airline.checkin.data.remote.dto.GoogleAuthRequestDto
 import com.airline.checkin.data.remote.dto.LoginRequestDto
 import com.airline.checkin.data.remote.dto.RegisterRequestDto
@@ -66,6 +67,10 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun getCurrentUser(): User? = null
 
     override suspend fun isLoggedIn(): Boolean = false
+
+    override suspend fun registerFcmToken(fcmToken: String): Result<Unit> = runCatching {
+        authApi.registerFcmToken(FcmTokenRequestDto(fcmToken))
+    }
 }
 
 private fun TokenManager.clearTokens() {

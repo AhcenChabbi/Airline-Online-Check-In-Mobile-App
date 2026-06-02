@@ -4,9 +4,9 @@ import com.airline.checkin.domain.model.Seat
 import com.airline.checkin.domain.repository.CheckInRepository
 import javax.inject.Inject
 
-class SelectSeatUseCase @Inject constructor(
+class GetSeatMapUseCase @Inject constructor(
     private val checkInRepository: CheckInRepository
 ) {
-    suspend operator fun invoke(checkinId: String, seatId: String): Result<Seat> =
-        checkInRepository.selectSeat(checkinId, seatId)
+    suspend operator fun invoke(checkinId: String): Result<List<Seat>> =
+        checkInRepository.getSeatMap(checkinId)
 }

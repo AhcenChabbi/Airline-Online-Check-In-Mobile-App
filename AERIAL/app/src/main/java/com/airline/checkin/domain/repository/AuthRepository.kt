@@ -10,4 +10,5 @@ interface AuthRepository {
     suspend fun logout()
     suspend fun getCurrentUser(): User?
     suspend fun isLoggedIn(): Boolean
+    suspend fun registerFcmToken(fcmToken: String): Result<Unit>
 }

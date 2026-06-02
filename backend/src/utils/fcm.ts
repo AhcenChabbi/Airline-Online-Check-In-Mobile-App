@@ -1,16 +1,30 @@
 import admin from "firebase-admin";
-import { readFileSync } from "fs";
-import { FCM_SERVICE_ACCOUNT_PATH } from "../config/env.js";
+import { existsSync, readFileSync } from "fs";
+import { resolve } from "path";
+import { FCM_SERVICE_ACCOUNT_PATH, NODE_ENV } from "../config/env.js";
 
 // Initialize only once
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(
-    readFileSync(FCM_SERVICE_ACCOUNT_PATH, "utf-8")
-  );
+let fcmReady = false;
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+if (!admin.apps.length) {
+  const resolvedServiceAccountPath = resolve(FCM_SERVICE_ACCOUNT_PATH);
+  if (existsSync(resolvedServiceAccountPath)) {
+    const serviceAccount = JSON.parse(
+      readFileSync(resolvedServiceAccountPath, "utf-8")
+    );
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    fcmReady = true;
+    console.log("[FCM] Firebase Admin initialized.");
+  } else {
+    const message = `[FCM] Service account file not found at ${resolvedServiceAccountPath}.`;
+    if (NODE_ENV === "production") {
+      throw new Error(message);
+    }
+    console.warn(`${message} Push notifications are disabled.`);
+  }
 }
 
 export interface PushPayload {
@@ -23,6 +37,10 @@ export async function sendPushNotification(
   fcmToken: string,
   payload: PushPayload
 ): Promise<string> {
+  if (!fcmReady) {
+    return "fcm-disabled";
+  }
+
   const message: admin.messaging.Message = {
     token: fcmToken,
     notification: {

@@ -9,7 +9,6 @@ import {
   baggageSchema,
   specialRequestsSchema,
 } from "../schemas/checkin.schema";
-import AppError from "../utils/AppError";
 import { generateBoardingPassPdfBuffer } from "../utils/assets";
 
 export const initiateCheckIn = catchErrors(
@@ -115,16 +114,9 @@ export const downloadBoardingPassPdf = catchErrors(
       req.params.checkinId as string,
     );
     const payload = boardingPass.offlinePayload as any;
-
-    if (!boardingPass.qrCodeUrl) {
-      throw new AppError(
-        "QR code not available for this boarding pass.",
-        HTTP_STATUS.NOT_FOUND,
-      );
-    }
-
     const pdfBuffer = await generateBoardingPassPdfBuffer(
       payload,
+      boardingPass.qrCodeData,
       boardingPass.qrCodeUrl,
     );
 

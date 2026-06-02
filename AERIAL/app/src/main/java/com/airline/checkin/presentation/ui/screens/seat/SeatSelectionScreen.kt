@@ -21,30 +21,58 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airline.checkin.presentation.ui.components.*
 import com.airline.checkin.presentation.ui.theme.Spacing
+import com.airline.checkin.presentation.ui.viewmodels.CheckInViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
-fun SeatSelectionScreen(onSeatConfirmed: () -> Unit, onBack: () -> Unit) {
-    var selectedSeatCode by remember { mutableStateOf("12B") }
-    
-    val totalRows = 30
-    val rows = (10..totalRows).toList()
-    val columns = listOf("A", "B", "C", "D")
-    val aisleIndex = 2
-    
-    val occupiedSeats = remember { setOf("10B", "10C", "11A", "11B", "12D", "15A", "15F") }
-    val premiumRows = remember { setOf(10, 11, 12) }
+fun SeatSelectionScreen(
+    onSeatConfirmed: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: CheckInViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkInId = uiState.checkIn?.id
+    val seatMap = uiState.seatMap
+    var selectedSeatCode by remember { mutableStateOf(uiState.selectedSeat?.seatCode.orEmpty()) }
 
-    val selectedRow = selectedSeatCode.filter { it.isDigit() }.toIntOrNull() ?: 12
-    val selectedCol = selectedSeatCode.filter { it.isLetter() }
-    val isPremium = premiumRows.contains(selectedRow)
-    
-    val seatType = when (selectedCol) {
-        "A", "F" -> "Window Seat"
-        "B", "E" -> "Middle Seat"
-        else -> "Aisle Seat"
+    LaunchedEffect(uiState.selectedSeat?.seatCode) {
+        selectedSeatCode = uiState.selectedSeat?.seatCode.orEmpty()
     }
-    
-    val seatFee = if (isPremium) "$25.00" else "Included"
+
+    LaunchedEffect(checkInId) {
+        if (checkInId != null && seatMap.isEmpty()) {
+            viewModel.loadSeatMap(checkInId)
+        }
+    }
+
+    val rows = seatMap.map { it.rowNumber }.distinct().sorted()
+    val columns = seatMap.map { it.columnLetter }.distinct().sorted()
+    val aisleIndex = (columns.size / 2).coerceAtLeast(1)
+
+    val selectedSeat = seatMap.firstOrNull { it.seatCode == selectedSeatCode }
+    val seatType = when (selectedSeat?.seatType) {
+        "WINDOW" -> "Window Seat"
+        "AISLE" -> "Aisle Seat"
+        "MIDDLE" -> "Middle Seat"
+        else -> "Standard"
+    }
+    val seatFee = "Included"
+
+    var pendingContinue by remember { mutableStateOf(false) }
+    var pendingSeatId by remember { mutableStateOf<String?>(null) }
+    var localError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(uiState.isLoading, uiState.error, uiState.selectedSeat) {
+        if (pendingContinue && !uiState.isLoading) {
+            if (uiState.error == null && (pendingSeatId == null || uiState.selectedSeat?.id == pendingSeatId)) {
+                onSeatConfirmed()
+            }
+            pendingContinue = false
+            pendingSeatId = null
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -58,10 +86,19 @@ fun SeatSelectionScreen(onSeatConfirmed: () -> Unit, onBack: () -> Unit) {
         contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Top),
         bottomBar = {
             SeatConfirmationBar(
-                seatCode = selectedSeatCode,
+                seatCode = selectedSeatCode.ifBlank { "—" },
                 seatType = seatType,
                 fee = seatFee,
-                onConfirm = onSeatConfirmed
+                onConfirm = {
+                    if (checkInId != null && selectedSeat != null) {
+                        localError = null
+                        pendingContinue = true
+                        pendingSeatId = selectedSeat.id
+                        viewModel.selectSeat(checkInId, selectedSeat.id)
+                    } else {
+                        localError = "Select a seat to continue."
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -94,91 +131,105 @@ fun SeatSelectionScreen(onSeatConfirmed: () -> Unit, onBack: () -> Unit) {
                     SeatLegendItem("Selected", SeatStatus.SELECTED)
                     SeatLegendItem("Occupied", SeatStatus.OCCUPIED)
                 }
+
+                if (localError != null) {
+                    Spacer(modifier = Modifier.height(Spacing.md))
+                    ErrorBanner(
+                        message = localError ?: "Select a seat to continue.",
+                        onDismiss = { localError = null }
+                    )
+                }
+
+                if (uiState.error != null) {
+                    Spacer(modifier = Modifier.height(Spacing.md))
+                    ErrorBanner(
+                        message = uiState.error ?: "Unable to reserve seat.",
+                        onDismiss = { viewModel.clearError() }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(Spacing.xl))
 
             // 3. Airplane Cabin Container - Adding horizontal scroll for seats
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Spacing.gutter)
-                    .padding(bottom = Spacing.xxl),
-                shape = RoundedCornerShape(topStart = 60.dp, topEnd = 60.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                shadowElevation = 1.dp
-            ) {
-                // Horizontal scroll for the entire seat grid to handle small screens
-                // fillMaxWidth + Center alignment ensures it stays centered if it fits
-                Box(
+            if (seatMap.isNotEmpty()) {
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    contentAlignment = Alignment.Center
+                        .padding(horizontal = Spacing.gutter)
+                        .padding(bottom = Spacing.xxl),
+                    shape = RoundedCornerShape(topStart = 60.dp, topEnd = 60.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    shadowElevation = 1.dp
                 ) {
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .padding(vertical = Spacing.xl, horizontal = Spacing.md),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center
                     ) {
-                        // Top nose indicators
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            repeat(3) {
-                                Box(modifier = Modifier.size(4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.outlineVariant))
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(Spacing.xl))
-
-                        // Seat Grid
-                        rows.forEach { rowNum ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Left Side
-                                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                                    columns.take(aisleIndex).forEach { col ->
-                                        val code = "$rowNum$col"
-                                        SeatGridItem(
-                                            seatCode = code,
-                                            status = when {
-                                                code == selectedSeatCode -> SeatStatus.SELECTED
-                                                occupiedSeats.contains(code) -> SeatStatus.OCCUPIED
-                                                premiumRows.contains(rowNum) -> SeatStatus.PREMIUM
-                                                else -> SeatStatus.AVAILABLE
-                                            },
-                                            onClick = { selectedSeatCode = code }
-                                        )
-                                    }
-                                }
-
-                                // Row Number
-                                Text(
-                                    text = rowNum.toString(),
-                                    modifier = Modifier.width(36.dp),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                )
-
-                                // Right Side
-                                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                                    columns.drop(aisleIndex).forEach { col ->
-                                        val code = "$rowNum$col"
-                                        SeatGridItem(
-                                            seatCode = code,
-                                            status = when {
-                                                code == selectedSeatCode -> SeatStatus.SELECTED
-                                                occupiedSeats.contains(code) -> SeatStatus.OCCUPIED
-                                                premiumRows.contains(rowNum) -> SeatStatus.PREMIUM
-                                                else -> SeatStatus.AVAILABLE
-                                            },
-                                            onClick = { selectedSeatCode = code }
-                                        )
-                                    }
+                        Column(
+                            modifier = Modifier
+                                .padding(vertical = Spacing.xl, horizontal = Spacing.md),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                repeat(3) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(4.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(MaterialTheme.colorScheme.outlineVariant)
+                                    )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(Spacing.sm))
+
+                            Spacer(modifier = Modifier.height(Spacing.xl))
+
+                            rows.forEach { rowNum ->
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                                        columns.take(aisleIndex).forEach { col ->
+                                            val code = "$rowNum$col"
+                                            val seat = seatMap.firstOrNull { it.seatCode == code }
+                                            SeatGridItem(
+                                                seatCode = code,
+                                                status = when {
+                                                    code == selectedSeatCode -> SeatStatus.SELECTED
+                                                    seat?.isOccupied == true -> SeatStatus.OCCUPIED
+                                                    else -> SeatStatus.AVAILABLE
+                                                },
+                                                onClick = { if (seat?.isOccupied != true) selectedSeatCode = code }
+                                            )
+                                        }
+                                    }
+
+                                    Text(
+                                        text = rowNum.toString(),
+                                        modifier = Modifier.width(36.dp),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+
+                                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                                        columns.drop(aisleIndex).forEach { col ->
+                                            val code = "$rowNum$col"
+                                            val seat = seatMap.firstOrNull { it.seatCode == code }
+                                            SeatGridItem(
+                                                seatCode = code,
+                                                status = when {
+                                                    code == selectedSeatCode -> SeatStatus.SELECTED
+                                                    seat?.isOccupied == true -> SeatStatus.OCCUPIED
+                                                    else -> SeatStatus.AVAILABLE
+                                                },
+                                                onClick = { if (seat?.isOccupied != true) selectedSeatCode = code }
+                                            )
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(Spacing.sm))
+                            }
                         }
                     }
                 }
