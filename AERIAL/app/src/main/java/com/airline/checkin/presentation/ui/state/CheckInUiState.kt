@@ -2,6 +2,7 @@ package com.airline.checkin.presentation.ui.state
 
 import com.airline.checkin.domain.model.Baggage
 import com.airline.checkin.domain.model.BoardingPass
+import com.airline.checkin.domain.model.BookingLookup
 import com.airline.checkin.domain.model.CheckIn
 import com.airline.checkin.domain.model.Flight
 import com.airline.checkin.domain.model.Passenger
@@ -10,6 +11,7 @@ import com.airline.checkin.domain.model.SpecialRequest
 
 data class CheckInUiState(
         val bookingReference: String = "",
+        val booking: BookingLookup? = null,
         val flight: Flight? = null,
         val passenger: Passenger? = null,
         val checkIn: CheckIn? = null,

@@ -39,6 +39,7 @@ fun DetailsReviewScreen(
     val flight = uiState.flight
     val checkInId = uiState.checkIn?.id
     var pendingContinue by remember { mutableStateOf(false) }
+    var nameValidationError by remember { mutableStateOf<String?>(null) }
 
     // State for editable fields
     var firstName by remember { mutableStateOf("") }
@@ -86,10 +87,14 @@ fun DetailsReviewScreen(
         ) {
             Spacer(modifier = Modifier.height(Spacing.md))
 
-            if (uiState.error != null) {
+            val errorToShow = nameValidationError ?: uiState.error
+            if (errorToShow != null) {
                 ErrorBanner(
-                    message = uiState.error ?: "Unable to confirm details.",
-                    onDismiss = { viewModel.clearError() }
+                    message = errorToShow,
+                    onDismiss = {
+                        nameValidationError = null
+                        viewModel.clearError()
+                    }
                 )
                 Spacer(modifier = Modifier.height(Spacing.md))
             }
@@ -207,17 +212,27 @@ fun DetailsReviewScreen(
             ConfirmButton(
                 text = "Confirm Details",
                 onClick = {
-                    if (checkInId != null) {
-                        pendingContinue = true
-                        viewModel.submitPassportAndConfirm(
-                            checkInId,
-                            PassportScanData(
-                                passportNumber = passportNumber,
-                                passportExpiry = passportExpiry.toApiDateString(),
-                                passportMrz = passenger?.passportMrz,
-                                passportScanUrl = passenger?.passportScanUrl
+                    val originalPassenger = uiState.booking?.passengers?.find { it.id == passenger?.id }
+                    val originalFirstName = originalPassenger?.firstName.orEmpty().trim()
+                    val originalLastName = originalPassenger?.lastName.orEmpty().trim()
+
+                    if (!firstName.trim().equals(originalFirstName, ignoreCase = true) ||
+                        !lastName.trim().equals(originalLastName, ignoreCase = true)) {
+                        nameValidationError = "Passenger name does not match the booking details. Please verify and correct the first name and last name."
+                    } else {
+                        nameValidationError = null
+                        if (checkInId != null) {
+                            pendingContinue = true
+                            viewModel.submitPassportAndConfirm(
+                                checkInId,
+                                PassportScanData(
+                                    passportNumber = passportNumber,
+                                    passportExpiry = passportExpiry.toApiDateString(),
+                                    passportMrz = passenger?.passportMrz,
+                                    passportScanUrl = passenger?.passportScanUrl
+                                )
                             )
-                        )
+                        }
                     }
                 },
                 modifier = Modifier.padding(bottom = Spacing.lg)

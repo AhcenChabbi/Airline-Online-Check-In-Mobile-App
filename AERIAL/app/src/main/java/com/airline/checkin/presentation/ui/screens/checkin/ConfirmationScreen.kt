@@ -1,8 +1,16 @@
 package com.airline.checkin.presentation.ui.screens.checkin
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.RingtoneManager
 import android.os.Build
+import androidx.core.app.NotificationCompat
+import com.airline.checkin.MainActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -66,6 +74,17 @@ fun ConfirmationScreen(
     LaunchedEffect(uiState.isLoading, uiState.error, uiState.boardingPass) {
         if (pendingContinue && !uiState.isLoading) {
             if (uiState.error == null && uiState.boardingPass != null) {
+                val isPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    true
+                }
+                if (isPermissionGranted) {
+                    sendLocalNotification(context, flightNumber, destination)
+                }
                 onContinue(uiState.boardingPass?.checkinId ?: uiState.checkIn?.id.orEmpty())
             }
             pendingContinue = false
@@ -219,4 +238,48 @@ fun ConfirmationScreen(
             Spacer(modifier = Modifier.height(Spacing.lg))
         }
     }
+}
+
+private fun sendLocalNotification(
+    context: Context,
+    flightNumber: String,
+    destination: String
+) {
+    val channelId = "aerial_channel"
+    val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+    
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    }
+    
+    val pendingIntent = PendingIntent.getActivity(
+        context,
+        0,
+        intent,
+        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+    )
+    
+    val notificationBuilder = NotificationCompat.Builder(context, channelId)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setContentTitle("Check-in Complete!")
+        .setContentText("Your boarding pass for flight $flightNumber to $destination is ready.")
+        .setAutoCancel(true)
+        .setSound(defaultSoundUri)
+        .setContentIntent(pendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            channelId,
+            "AERIAL Flight Updates",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Channels for flight check-in and boarding pass updates"
+        }
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
 }

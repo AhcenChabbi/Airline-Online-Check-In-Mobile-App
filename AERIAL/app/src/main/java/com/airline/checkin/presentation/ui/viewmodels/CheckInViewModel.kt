@@ -47,6 +47,7 @@ class CheckInViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         bookingReference = session.booking?.bookingReference.orEmpty(),
+                        booking = session.booking,
                         flight = session.flight,
                         passenger = session.passenger,
                         checkIn = session.checkIn,
