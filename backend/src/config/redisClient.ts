@@ -3,6 +3,9 @@ import { REDIS_URL } from "./env";
 
 const redisClient = createClient({
   url: REDIS_URL,
+  socket: {
+    tls: REDIS_URL.startsWith("rediss://"),
+  },
 });
 
 redisClient.on("connect", () => {

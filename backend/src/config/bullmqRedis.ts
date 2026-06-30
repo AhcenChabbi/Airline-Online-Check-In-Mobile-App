@@ -3,6 +3,7 @@ import { REDIS_URL } from "./env";
 
 const bullmqRedis = new Redis(REDIS_URL, {
   maxRetriesPerRequest: null, // Required by BullMQ
+  tls: REDIS_URL.startsWith("rediss://") ? {} : undefined,
 });
 
 bullmqRedis.on("connect", () => console.log("[BullMQ] Connected to Redis"));
